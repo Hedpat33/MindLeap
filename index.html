@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <script>
+      // Apply the saved theme/language before first paint; a first visit
+      // defaults to light + Chinese regardless of the OS colour scheme.
+      (function () {
+        var theme = "light", lang = "zh";
+        try {
+          theme = localStorage.getItem("ml-theme") || "light";
+          lang = localStorage.getItem("ml-lang") || "zh";
+        } catch (e) { /* storage unavailable: keep the defaults */ }
+        document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+        if (lang === "en") {
+          document.documentElement.setAttribute("lang", "en");
+          document.documentElement.setAttribute("data-lang", "en");
+        }
+      })();
+    </script>
+    <meta name="description" content="MindLeap — 本地一体化 AI 服务。Beyond AI. Where data ends, MindLeap begins." />
+    <link rel="icon" href="data:," />
+    <title>MindLeap 主页</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Archivo:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-alt: #f5f5f7;
+        --ink: #1d1d1f;
+        --muted: #6e6e73;
+        --faint: #86868b;
+        --line: #d2d2d7;
+        --accent: #0071e3;
+        --link: #0066cc;
+        --accent-ink: #ffffff;
+        --ok: #0c7a43;
+        --warn: #9a6206;
+        --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px;
+        --s5: 32px; --s6: 48px; --s7: 64px; --s8: 96px;
+        color-scheme: light;
+      }
+      :root[data-theme="dark"] {
+        --bg: #000000;
+        --bg-alt: #161617;
+        --ink: #f5f5f7;
+        --muted: #a1a1a6;
+        --faint: #86868b;
+        --line: #424245;
+        --accent: #0071e3;
+        --link: #2997ff;
+        --accent-ink: #ffffff;
+        --ok: #3ecf83;
+        --warn: #e0a83e;
+        color-scheme: dark;
+      }
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+      @media (min-width: 821px) {
+        html { scroll-snap-type: y mandatory; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: -0.022em;
+        -webkit-font-smoothing: antialiased;
+      }
+      .en { font-family: "Archivo", "Noto Sans SC", system-ui, sans-serif; }
+      a { color: inherit; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+      /* ---------- nav: sticky frosted bar, after Apple's Design local nav.
+         The 56px bar height is reserved by .screen (min-height + scroll-margin-top),
+         so snapped screens never slide under it. ---------- */
+      header {
+        position: sticky; top: 0; z-index: 20;
+        background: color-mix(in srgb, var(--bg) 80%, transparent);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        backdrop-filter: saturate(180%) blur(20px);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav {
+        display: flex; align-items: center; justify-content: space-between;
+        height: 56px;
+      }
+      .brand { font-size: 18px; font-weight: 700; letter-spacing: .04em; text-decoration: none; color: var(--ink); }
+      .nav-controls { display: flex; align-items: center; gap: 8px; }
+      .nav-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        min-width: 34px; height: 34px; padding: 0 10px;
+        background: transparent; border: 1px solid var(--line); border-radius: 980px;
+        color: var(--muted); font: inherit; font-size: 13px; line-height: 1;
+        cursor: pointer;
+        transition: color .2s ease, border-color .2s ease;
+      }
+      .nav-btn:hover { color: var(--ink); border-color: var(--faint); }
+      .nav-btn .fa-sun { display: none; }
+      :root[data-theme="dark"] .nav-btn .fa-sun { display: inline-block; }
+      :root[data-theme="dark"] .nav-btn .fa-moon { display: none; }
+      #lang-btn { min-width: 44px; letter-spacing: .04em; }
+
+      /* ---------- full-screen pages: one screen per wheel page ---------- */
+      .screen {
+        min-height: calc(100vh - 56px);
+        min-height: calc(100dvh - 56px);
+        scroll-snap-align: start;
+        scroll-margin-top: 56px;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: var(--s8) 0;
+      }
+      .screen > .wrap { width: 100%; }
+      @media (max-width: 820px) {
+        .screen { padding: var(--s7) 0; }
+      }
+
+      /* ---------- hero ---------- */
+      .hero { text-align: center; }
+      .app-tag {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        font-size: 14px; letter-spacing: .3em; color: var(--muted);
+        margin: 0 0 var(--s5);
+      }
+      .app-tag .sep { color: var(--faint); letter-spacing: 0; }
+      .app-name {
+        font-family: "Archivo", sans-serif; font-weight: 600; font-size: 17px;
+        color: var(--ink); letter-spacing: .03em;
+      }
+      h1.headline {
+        font-size: clamp(40px, 8vw, 88px);
+        font-weight: 700;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        margin: 0 auto var(--s4);
+        white-space: nowrap;
+      }
+      /* Below ~560px the 40px floor of the clamp no longer fits the
+         single-line headline, so let the size track the viewport. */
+      @media (max-width: 560px) {
+        h1.headline { font-size: 8.4vw; }
+      }
+      /* The English headline is longer: let it wrap rather than overflow. */
+      html[lang="en"] h1.headline { white-space: normal; font-size: clamp(34px, 6.2vw, 68px); line-height: 1.12; }
+      html[lang="en"] .app-tag { letter-spacing: .14em; }
+      html[lang="en"] .orbit-vision .v-line1 { font-size: clamp(12.5px, 3.4vw, 17px); letter-spacing: .05em; }
+      html[lang="en"] .c-col h4.c-sub, html[lang="en"] .contact-line .k { letter-spacing: .1em; }
+      h1.headline em { font-style: normal; color: var(--accent); }
+      .hero-sub {
+        font-size: clamp(19px, 2.4vw, 23px);
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--muted);
+        max-width: 620px;
+        margin: 0 auto var(--s6);
+      }
+      .hero-sub .dot { color: var(--faint); margin: 0 6px; }
+      .hero-sub .secret {
+        display: inline-block; margin-top: 10px;
+        font-style: normal; font-weight: 500; color: var(--accent);
+      }
+      .btn {
+        display: inline-block; padding: 10px 22px; font-size: 15px;
+        border-radius: 980px; text-decoration: none; cursor: pointer;
+        border: 1px solid transparent; font-family: inherit; font-weight: 400;
+        transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
+      }
+      .btn-solid { background: var(--accent); color: var(--accent-ink); }
+      .btn-solid:hover { filter: brightness(0.92); }
+      .btn-solid:disabled { opacity: .55; cursor: default; filter: none; }
+      .btn-ghost { background: transparent; color: var(--accent); border-color: var(--accent); }
+      .btn-ghost:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+      /* orbit: the 3D ellipse tier from the orbit demo — devices travel an
+         ellipse (ry/rx = 0.25), near side larger and clearer, far side
+         smaller and fainter; JS positions them, icons stay upright */
+      .orbit-stage {
+        position: relative;
+        width: min(720px, 94vw);
+        aspect-ratio: 1 / 0.7;
+        margin: 0 auto;
+        --rx: min(296px, 42vw);
+        --ry: calc(var(--rx) * 0.25);
+      }
+      /* centre halo: same ellipse as the orbit (aspect 0.25), same centre;
+         JS pulses its opacity at 72/min */
+      .orbit-halo {
+        position: absolute; left: 50%; top: 50%;
+        width: 88%; aspect-ratio: 1 / 0.25;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(0, 113, 227, 0.22) 0%, rgba(0, 113, 227, 0.10) 45%, rgba(0, 113, 227, 0) 72%);
+        pointer-events: none;
+      }
+      .orbit-dev {
+        position: absolute; left: 50%; top: 50%;
+        will-change: transform, opacity;
+        pointer-events: none;
+      }
+      .dev-glow {
+        position: absolute; left: 50%; top: 50%;
+        width: calc(var(--rx) * 0.2615); height: calc(var(--rx) * 0.2615);
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 42%, rgba(255, 255, 255, 0) 68%);
+        pointer-events: none;
+      }
+      .chip {
+        position: relative;
+        display: inline-flex; align-items: center; justify-content: center;
+        width: calc(var(--rx) * 0.1304); height: calc(var(--rx) * 0.1304); border-radius: 50%;
+        background: var(--bg); border: 1px solid var(--line);
+        color: var(--muted); font-size: calc(var(--rx) * 0.0676);
+      }
+      /* names stay hidden until the device is hovered or focused */
+      .chip-name {
+        position: absolute; left: 50%; top: calc(var(--rx) * 0.1554); transform: translateX(-50%);
+        font-size: calc(var(--rx) * 0.071); letter-spacing: .05em; color: var(--faint); white-space: nowrap; line-height: 1.2;
+        opacity: 0; transition: opacity .25s ease;
+        pointer-events: none;
+      }
+      .orbit-dev.is-hover .chip-name { opacity: 1; }
+      /* enlarged hover hot zone over the device ball */
+      .dev-hit {
+        position: absolute; left: 50%; top: 50%;
+        width: calc(var(--rx) * 0.3784); height: calc(var(--rx) * 0.3784); border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: auto; cursor: pointer;
+      }
+      .orbit-center {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 4;
+        text-align: center;
+        pointer-events: none;
+      }
+      /* no card any more: the AI icon and home badge float bare at centre */
+      .char-icon {
+        position: relative;
+        width: calc(var(--rx) * 0.3311); height: calc(var(--rx) * 0.3311); margin: 0 auto;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .char-icon .ai-flat { display: block; width: calc(var(--rx) * 0.2973); height: calc(var(--rx) * 0.2973); }
+      .home-badge {
+        position: absolute; right: 0; bottom: 0;
+        width: calc(var(--rx) * 0.1351); height: calc(var(--rx) * 0.1351); border-radius: 50%;
+        /* Badge blue is pinned: it stays as approved, outside the accent token. */
+        background: #002fa7; color: var(--accent-ink);
+        display: flex; align-items: center; justify-content: center;
+        border: calc(var(--rx) * 0.0135) solid var(--bg);
+      }
+      .home-badge svg { width: calc(var(--rx) * 0.0676); height: calc(var(--rx) * 0.0676); }
+
+      /* ---------- sections ---------- */
+      /* overflow-x: clip keeps any stray transformed content from widening
+         the page on narrow screens; nothing visible reaches the section
+         edges, so the orbit itself is never clipped. */
+      .screen-orbit { justify-content: flex-start; padding-top: var(--s7); overflow-x: clip; }
+      @media (max-width: 820px) {
+        .screen-orbit { padding-top: var(--s6); }
+      }
+      /* Screen 3 separates by surface colour (var(--bg-alt)), not a rule. */
+      .screen-contact { background: var(--bg-alt); justify-content: flex-start; }
+      .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: var(--s6); }
+      h2 { font-size: clamp(28px, 3.6vw, 36px); font-weight: 600; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+      .sec-note { color: var(--faint); font-size: 14px; margin-left: auto; text-align: right; }
+      @media (max-width: 640px) { .sec-note { display: none; } }
+
+      /* vision: caption under the orbit image, two lines with separate
+         styles: line 1 is the original small ink text, line 2 stays the
+         large hero-accent blue. The block as a whole stays centered. */
+      .orbit-vision {
+        text-align: center;
+        line-height: 1.8;
+        max-width: 860px; margin: var(--s6) auto 0;
+        /* shift the whole block up by exactly its own height (both lines
+           plus their line spacing); layout and line spacing stay as-is */
+        transform: translateY(-100%);
+      }
+      .orbit-vision .v-line1 {
+        font-size: clamp(16px, 2vw, 19px); font-weight: 700;
+        letter-spacing: .1em;
+        color: var(--ink);
+      }
+      .orbit-vision .v-line1 .dot { color: var(--faint); margin: 0 .8em; font-weight: 400; }
+      .orbit-vision .v-line2 {
+        font-size: clamp(22px, 3.4vw, 37px); font-weight: 700;
+        letter-spacing: .06em;
+        color: var(--accent);
+      }
+      @media (max-width: 480px) {
+        .orbit-vision .v-line1 { letter-spacing: .04em; }
+        .orbit-vision .v-line1 .dot { margin: 0 .35em; }
+        .orbit-vision .v-line2 { font-size: clamp(20px, 6vw, 24px); letter-spacing: .04em; }
+      }
+
+      /* contact: three columns, smaller type */
+      .contact-grid { display: grid; grid-template-columns: 1.1fr 1fr 1.25fr; gap: 44px; }
+      /* vertical dividers between the three columns: a hairline that fades
+         in from transparent at the top, sits grey through the middle, and
+         fades out at the bottom; spans the full column height. */
+      .c-col { position: relative; }
+      .c-col + .c-col::before {
+        content: ""; position: absolute; top: 0; bottom: 0; left: -22px;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--faint) 55%, transparent) 18%, color-mix(in srgb, var(--faint) 55%, transparent) 82%, transparent);
+      }
+      .c-col h4.c-sub { font-size: 12px; font-weight: 500; letter-spacing: .25em; color: var(--faint); margin: 24px 0 8px; }
+      /* personal-communication column: two side-by-side sub-columns above the form */
+      .comm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+      .comm-split .c-sub { margin-top: 10px; }
+      .comm-split p { margin-bottom: 20px; }
+      @media (max-width: 560px) { .comm-split { grid-template-columns: 1fr; } }
+      @media (max-width: 820px) {
+        .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+        .c-col + .c-col::before { display: none; }
+      }
+      .c-col h3 { font-size: 16px; font-weight: 600; margin: 0 0 16px; letter-spacing: .02em; }
+      .c-col p { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
+      .c-col p.reply-note { color: var(--faint); font-size: 12.5px; margin: 20px 0 0; }
+      .c-col .btn { font-size: 14px; padding: 10px 22px; }
+      .timeline { position: relative; margin-top: 16px; border-top: 2px solid var(--line); }
+      .tl-node { position: relative; padding-top: 18px; }
+      .tl-dot {
+        position: absolute; top: -7px; left: 0;
+        width: 10px; height: 10px; border-radius: 50%;
+        background: var(--accent); border: 2px solid var(--bg-alt);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      .c-col .tl-date {
+        font-family: "Archivo", sans-serif; font-size: 17px; color: var(--ink);
+        font-weight: 500; letter-spacing: .03em; margin: 0 0 2px; white-space: nowrap;
+      }
+      .c-col .tl-text { font-size: 14px; color: var(--muted); margin: 0; }
+      .contact-line { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+      .contact-line:first-of-type { border-top: 1px solid var(--line); }
+      .contact-line .k { display: block; font-size: 11px; letter-spacing: .25em; color: var(--faint); margin-bottom: 3px; }
+      .contact-line a { color: var(--link); text-decoration: none; transition: color .2s ease; }
+      .contact-line a:hover { text-decoration: underline; }
+      form { display: grid; gap: var(--s3); }
+      label { display: block; font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: var(--s2); letter-spacing: .02em; }
+      input {
+        width: 100%; height: 44px; padding: 0 14px; font: inherit; font-size: 16px; font-weight: 400;
+        background: var(--bg); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 12px;
+        transition: border-color .2s ease, box-shadow .2s ease;
+      }
+      input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+      textarea {
+        width: 100%; min-height: 108px; padding: 12px 14px; font: inherit; font-size: 16px; font-weight: 400;
+        background: var(--bg); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 12px;
+        resize: vertical;
+        transition: border-color .2s ease, box-shadow .2s ease;
+      }
+      textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+      ::placeholder { color: var(--faint); }
+      .form-status { font-size: 13px; min-height: 22px; margin: 0; }
+      .form-status.ok { color: var(--ok); }
+      .form-status.warn { color: var(--warn); }
+      .form-status.err { color: #c62f3b; }
+      .mailto-fallback { display: none; font-size: 13px; }
+      .mailto-fallback.show { display: inline-block; }
+
+      footer {
+        width: 100%; margin-top: auto;
+        border-top: 1px solid var(--line); padding: 30px 0 40px;
+        font-size: 12.5px; color: var(--faint);
+      }
+      footer .slogan-line { letter-spacing: .05em; font-size: 12px; text-align: left; line-height: 1.7; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap nav">
+        <a class="brand en" href="#top">MindLeap</a>
+        <div class="nav-controls">
+          <button class="nav-btn" id="lang-btn" type="button" aria-label="切换语言 / Switch language">EN</button>
+          <button class="nav-btn" id="theme-btn" type="button" aria-label="切换亮色 / 暗色 · Toggle light / dark"><i class="fa-solid fa-moon" aria-hidden="true"></i><i class="fa-solid fa-sun" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- Screen 1: hero -->
+      <section class="screen screen-hero">
+      <div class="wrap hero">
+        <p class="app-tag">
+          <span class="app-name">EchoSpark</span>
+          <span class="sep">·</span>
+          <span data-i18n="tagline">本地一体化 AI 服务</span>
+        </p>
+        <h1 class="headline" data-i18n="headline">伴您终身的<em>私人</em>助理</h1>
+        <p class="hero-sub" data-i18n="heroSub">
+          全天候陪伴<span class="dot">·</span>了解您的一切<span class="dot">·</span>熟悉您的喜好<br />
+          <em class="secret">永远保守您的秘密</em>
+        </p>
+      </div>
+      </section>
+
+      <!-- Screen 2: orbit + vision -->
+      <section class="screen screen-orbit">
+      <div class="wrap">
+        <div class="orbit-stage" role="img" data-i18n-aria="orbitAria" aria-label="EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入">
+          <div class="orbit-halo" aria-hidden="true"></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-android" aria-hidden="true"></i></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-apple" aria-hidden="true"></i></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-laptop" aria-hidden="true"></i></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-windows" aria-hidden="true"></i></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-glasses" aria-hidden="true"></i></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipVR" aria-label="VR 头盔 VR Headset"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-vr-cardboard" aria-hidden="true"></i></span><span class="chip-name en">VR Headset</span><span class="dev-hit"></span></div>
+          <div class="orbit-center">
+            <div class="char-icon">
+              <svg class="ai-flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true"><path d="M4 17 L31 17 Q34 17 34 21 L34 26 Q34 30 38 31 Q42 32 42 37 L42 40 Q42 45 37 45 L30 45 Q27 45 27 42 L27 39 L16 39 L16 42 Q16 45 13 45 L5 45 Q1 45 1 41 L1 26 Q1 21 2 19 Q3 17 4 17 Z" fill="#5F96E8"/><path d="M12.5 24 Q14 27 17 28.5 Q14 30 12.5 33 Q11 30 8 28.5 Q11 27 12.5 24 Z" fill="#2859C5"/><path d="M36.5 0 Q39 8.5 47 11 Q39 13.5 36.5 22 Q34 13.5 26 11 Q34 8.5 36.5 0 Z" fill="#2859C5"/></svg>
+              <span class="home-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9h11v-9"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <p class="orbit-vision"><span class="v-line1" data-i18n="vision1">顺境或逆旅<span class="dot">·</span>富贵或贫穷<span class="dot">·</span>健康或疾病</span><br /><span class="v-line2" data-i18n="vision2">伴您同行</span></p>
+      </div>
+      </section>
+
+      <!-- Screen 3: contact -->
+      <section id="contact" class="screen screen-contact">
+        <div class="wrap">
+          <div class="sec-head">
+            <h2 data-i18n="aboutTitle">关于我们</h2>
+          </div>
+          <div class="contact-grid">
+            <div class="c-col">
+              <h3 data-i18n="col1Title">项目介绍</h3>
+              <h4 class="c-sub" data-i18n="teamSub">人员组成</h4>
+              <p data-i18n="teamText">团队成员来自 <span class="en">Alibaba</span>、<span class="en">Tencent</span>、<span class="en">ByteDance</span> 资深研发。</p>
+              <h4 class="c-sub" data-i18n="msSub">里程碑</h4>
+              <div class="timeline">
+                <div class="tl-node">
+                  <span class="tl-dot" aria-hidden="true"></span>
+                  <p class="tl-date en">2026 · 10 · 10</p>
+                  <p class="tl-text" data-i18n="tlText">MindLeap 诞生</p>
+                </div>
+              </div>
+            </div>
+            <div class="c-col">
+              <h3 data-i18n="col2Title">公司合作</h3>
+              <p data-i18n="col2Text">商务合作请发邮件联系，来信请简述合作意向。</p>
+              <div class="contact-line">
+                <span class="k" data-i18n="kChina">中国区邮箱</span>
+                <a href="mailto:hedpat@mindleap.com.cn">hedpat@mindleap.com.cn</a>
+              </div>
+              <div class="contact-line">
+                <span class="k" data-i18n="kGlobal">海外邮箱</span>
+                <a href="mailto:hedpat@mindleap.technology">hedpat@mindleap.technology</a>
+              </div>
+            </div>
+            <div class="c-col">
+              <h3 data-i18n="col3Title">个人沟通</h3>
+              <div class="comm-split">
+                <div class="comm-side">
+                  <h4 class="c-sub" data-i18n="geekSub">极客交流</h4>
+                  <p data-i18n="geekText">欢迎沟通交流。</p>
+                </div>
+                <div class="comm-side">
+                  <h4 class="c-sub" data-i18n="partnerSub">合伙人招募</h4>
+                  <p data-i18n="partnerText">2/3D UI 设计达人<br />LLM 微调达人</p>
+                </div>
+              </div>
+              <form id="lead-form" novalidate>
+                <div>
+                  <label for="f-name" data-i18n="labelName">姓名</label>
+                  <input id="f-name" name="name" type="text" autocomplete="name" data-i18n-ph="phName" placeholder="怎么称呼您" />
+                </div>
+                <div>
+                  <label for="f-email" data-i18n="labelEmail">邮箱</label>
+                  <input id="f-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+                </div>
+                <div>
+                  <label for="f-message" data-i18n="labelMsg">留言</label>
+                  <textarea id="f-message" name="message" rows="3" data-i18n-ph="phMsg" placeholder="说说您的来意"></textarea>
+                </div>
+                <div>
+                  <button class="btn btn-solid" type="submit" id="submit-btn" data-i18n="submitBtn">提交留言</button>
+                </div>
+                <p class="form-status" id="form-status" role="status"></p>
+                <a class="btn btn-ghost mailto-fallback" id="mailto-fallback" href="#" data-i18n="mailtoBtn">改为用邮件发送</a>
+              </form>
+              <p class="reply-note" data-i18n="replyNote">注：我们收到邮件后会尽快在5个工作日内回复。</p>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <div class="wrap" style="display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:space-between;align-items:center;width:100%;padding:0;">
+            <span>© 2026 MindLeap</span>
+            <span class="en slogan-line">Beyond AI.<br />Where data ends, MindLeap begins.</span>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <script>
+      // Supabase personal-join form (name, email, message).
+      // Fill in the two values below with the project's URL and anon (public) key
+      // to enable direct submission into the `lead_contacts` table; blank name or
+      // message fields are stored as "个人加入" so the columns stay filled.
+      // Until then the form falls back to email.
+      var SUPABASE_URL = "";
+      var SUPABASE_ANON_KEY = "";
+
+      // ---- Theme & language (defaults: light theme, Chinese) ----
+      // Chinese strings below are the page's original copy, kept verbatim;
+      // the English strings are their translations. Device names, email
+      // addresses and the footer slogan are language-neutral and not listed.
+      var I18N = {
+        tagline: { zh: "本地一体化 AI 服务", en: "Local All-in-One AI Service" },
+        headline: { zh: "伴您终身的<em>私人</em>助理", en: "Your Lifelong <em>Private</em> Assistant" },
+        heroSub: { zh: "全天候陪伴<span class=\"dot\">·</span>了解您的一切<span class=\"dot\">·</span>熟悉您的喜好<br /><em class=\"secret\">永远保守您的秘密</em>", en: "Round-the-clock companionship<span class=\"dot\">·</span>Knows everything about you<span class=\"dot\">·</span>Knows what you like<br /><em class=\"secret\">Your secrets are always safe</em>" },
+        orbitAria: { zh: "EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入", en: "EchoSpark runs on a local device at home, with Android, iOS, Mac, Windows, smart glasses and VR headsets connected around it" },
+        chipGlasses: { zh: "智能眼镜 Glasses", en: "Glasses" },
+        chipVR: { zh: "VR 头盔 VR Headset", en: "VR Headset" },
+        vision1: { zh: "顺境或逆旅<span class=\"dot\">·</span>富贵或贫穷<span class=\"dot\">·</span>健康或疾病", en: "In good times or bad<span class=\"dot\">·</span>In wealth or in poverty<span class=\"dot\">·</span>In health or in sickness" },
+        vision2: { zh: "伴您同行", en: "Always by Your Side" },
+        aboutTitle: { zh: "关于我们", en: "About Us" },
+        col1Title: { zh: "项目介绍", en: "The Project" },
+        teamSub: { zh: "人员组成", en: "The Team" },
+        teamText: { zh: "团队成员来自 <span class=\"en\">Alibaba</span>、<span class=\"en\">Tencent</span>、<span class=\"en\">ByteDance</span> 资深研发。", en: "Senior engineers from <span class=\"en\">Alibaba</span>, <span class=\"en\">Tencent</span>, and <span class=\"en\">ByteDance</span>." },
+        msSub: { zh: "里程碑", en: "Milestones" },
+        tlText: { zh: "MindLeap 诞生", en: "MindLeap Is Born" },
+        col2Title: { zh: "公司合作", en: "Business Partnerships" },
+        col2Text: { zh: "商务合作请发邮件联系，来信请简述合作意向。", en: "For business partnerships, please reach us by email and briefly outline your proposal." },
+        kChina: { zh: "中国区邮箱", en: "China Email" },
+        kGlobal: { zh: "海外邮箱", en: "Global Email" },
+        col3Title: { zh: "个人沟通", en: "Get in Touch" },
+        geekSub: { zh: "极客交流", en: "Geek Talk" },
+        geekText: { zh: "欢迎沟通交流。", en: "Always happy to chat and swap ideas." },
+        partnerSub: { zh: "合伙人招募", en: "Partner Recruitment" },
+        partnerText: { zh: "2/3D UI 设计达人<br />LLM 微调达人", en: "2D/3D UI design expert<br />LLM fine-tuning expert" },
+        labelName: { zh: "姓名", en: "Name" },
+        labelEmail: { zh: "邮箱", en: "Email" },
+        labelMsg: { zh: "留言", en: "Message" },
+        phName: { zh: "怎么称呼您", en: "What should we call you?" },
+        phMsg: { zh: "说说您的来意", en: "Tell us why you're writing, or how you'd like to join in" },
+        submitBtn: { zh: "提交留言", en: "Send Message" },
+        mailtoBtn: { zh: "改为用邮件发送", en: "Send by email instead" },
+        replyNote: { zh: "注：我们收到邮件后会尽快在5个工作日内回复。", en: "Note: we reply within five business days of receiving your message." }
+      };
+      var MSG = {
+        zh: { needEmail: "请填上邮箱。", badEmail: "邮箱格式好像不对，请检查一下。", notReady: "在线登记通道正在接入中（Supabase 配置待填入）。可以先用邮件告诉我们：", sending: "正在提交……", ok: "收到了，谢谢你。我们会尽快联系你。", fail: "提交没有成功。可以改用邮件告诉我们：", subject: "MindLeap 个人加入", filler: "个人加入", fName: "姓名：", fEmail: "邮箱：", fMsg: "留言：" },
+        en: { needEmail: "Please enter your email address.", badEmail: "That email address doesn't look right — please check it.", notReady: "Online submission isn't connected yet. In the meantime, you can reach us by email:", sending: "Sending…", ok: "Got it — thank you. We'll be in touch soon.", fail: "The submission didn't go through. You can reach us by email instead:", subject: "MindLeap — Getting in Touch", filler: "Personal inquiry", fName: "Name: ", fEmail: "Email: ", fMsg: "Message: " }
+      };
+      var currentTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+      var currentLang = document.documentElement.getAttribute("data-lang") === "en" ? "en" : "zh";
+
+      function savePref(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) { /* storage unavailable */ }
+      }
+      function applyTheme(theme) {
+        currentTheme = theme;
+        document.documentElement.setAttribute("data-theme", theme);
+        var meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.setAttribute("content", theme);
+      }
+      function applyLang(lang) {
+        currentLang = lang;
+        document.documentElement.setAttribute("lang", lang === "en" ? "en" : "zh-CN");
+        document.documentElement.setAttribute("data-lang", lang);
+        document.title = lang === "en" ? "MindLeap" : "MindLeap 主页";
+        var nodes = document.querySelectorAll("[data-i18n]");
+        for (var i = 0; i < nodes.length; i++) {
+          var entry = I18N[nodes[i].getAttribute("data-i18n")];
+          if (entry) nodes[i].innerHTML = entry[lang];
+        }
+        var phs = document.querySelectorAll("[data-i18n-ph]");
+        for (var j = 0; j < phs.length; j++) {
+          var ph = I18N[phs[j].getAttribute("data-i18n-ph")];
+          if (ph) phs[j].setAttribute("placeholder", ph[lang]);
+        }
+        var arias = document.querySelectorAll("[data-i18n-aria]");
+        for (var k = 0; k < arias.length; k++) {
+          var ar = I18N[arias[k].getAttribute("data-i18n-aria")];
+          if (ar) arias[k].setAttribute("aria-label", ar[lang]);
+        }
+        document.getElementById("lang-btn").textContent = lang === "en" ? "中文" : "EN";
+      }
+      document.getElementById("theme-btn").addEventListener("click", function () {
+        var next = currentTheme === "dark" ? "light" : "dark";
+        applyTheme(next);
+        savePref("ml-theme", next);
+      });
+      document.getElementById("lang-btn").addEventListener("click", function () {
+        var next = currentLang === "en" ? "zh" : "en";
+        applyLang(next);
+        savePref("ml-lang", next);
+      });
+      if (currentLang === "en") applyLang("en");
+
+      // ---- Screen 2 orbit: 3D ellipse engine (ported from the orbit demo) ----
+      // Devices travel an ellipse (ry/rx = 0.25, 48s per revolution); depth
+      // from sin(θ) drives scale and opacity, icons stay upright. Device
+      // glows breathe at 36/min with a random phase each, the centre halo
+      // at 72/min. Hovering a device freezes the ring, enlarges it and shows
+      // its name; leaving resumes from the frozen angle, no jump.
+      (function () {
+        var stage = document.querySelector(".orbit-stage");
+        if (!stage) return;
+        var halo = stage.querySelector(".orbit-halo");
+        var devEls = stage.querySelectorAll("[data-dev]");
+        var N = devEls.length;
+        var TAU = Math.PI * 2;
+        var PERIOD = 48000;
+        var BREATH_MS = 60000 / 36; // device glow period; halo period is half this
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var glowPhase = [];
+        for (var p = 0; p < N; p++) glowPhase.push(Math.random() * TAU);
+        var hoverIdx = -1;
+        var angle = 0, lastT = null;
+
+        function setHover(i) {
+          if (hoverIdx === i) return;
+          if (hoverIdx >= 0) devEls[hoverIdx].classList.remove("is-hover");
+          hoverIdx = i;
+          if (hoverIdx >= 0) devEls[hoverIdx].classList.add("is-hover");
+          lastT = null; // resume from the frozen angle, no jump
+          if (reduced) render(performance.now());
+        }
+        for (var h = 0; h < N; h++) {
+          (function (idx) {
+            var hit = devEls[idx].querySelector(".dev-hit");
+            hit.addEventListener("pointerenter", function () { setHover(idx); });
+            hit.addEventListener("pointerleave", function () { setHover(-1); });
+          })(h);
+        }
+
+        function radii() {
+          var cs = getComputedStyle(stage);
+          var rx = parseFloat(cs.getPropertyValue("--rx")) || 296;
+          return { rx: rx, ry: rx * 0.25 };
+        }
+        function render(t) {
+          if (lastT === null) lastT = t;
+          var dt = Math.min(t - lastT, 50);
+          lastT = t;
+          if (hoverIdx < 0 && !reduced) angle += (dt / PERIOD) * TAU;
+          var r = radii();
+          var haloBeat = 0.5 + 0.5 * Math.sin((t / (BREATH_MS / 2)) * TAU);
+          halo.style.opacity = (0.5 + 0.5 * haloBeat).toFixed(3);
+          for (var i = 0; i < N; i++) {
+            var th = (i / N) * TAU - Math.PI / 2 + angle;
+            var x = Math.cos(th) * r.rx;
+            var y = Math.sin(th) * r.ry;
+            var depth = (Math.sin(th) + 1) / 2; // 0 = far side, 1 = near side
+            var hov = i === hoverIdx;
+            var s = (0.74 + 0.34 * depth) * (hov ? 1.38 : 1);
+            var el = devEls[i];
+            el.style.transform =
+              "translate(-50%, -50%) translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(" + s.toFixed(3) + ")";
+            el.style.opacity = hov ? "1" : (0.5 + 0.5 * depth).toFixed(3);
+            el.style.zIndex = hov ? "8" : (Math.sin(th) > 0 ? "6" : "2");
+            var beat = 0.5 + 0.5 * Math.sin((t / BREATH_MS) * TAU + glowPhase[i]);
+            el.querySelector(".dev-glow").style.opacity = (0.2 + 0.6 * beat).toFixed(3);
+          }
+        }
+        if (reduced) {
+          render(performance.now()); // one static frame: orbit still, glows still, hover names work
+        } else {
+          var loop = function (t) { render(t); requestAnimationFrame(loop); };
+          requestAnimationFrame(loop);
+        }
+      })();
+
+      var form = document.getElementById("lead-form");
+      var statusEl = document.getElementById("form-status");
+      var submitBtn = document.getElementById("submit-btn");
+      var mailtoFallback = document.getElementById("mailto-fallback");
+
+      function setStatus(text, cls) {
+        statusEl.textContent = text;
+        statusEl.className = "form-status" + (cls ? " " + cls : "");
+      }
+
+      // Load the Supabase client (pinned version) only when a submission
+      // actually needs it, so the unconfigured page loads no third-party code.
+      function loadSupabase() {
+        return new Promise(function (resolve, reject) {
+          if (window.supabase) { resolve(); return; }
+          var s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase.min.js";
+          s.onload = function () { resolve(); };
+          s.onerror = function () { reject(new Error("supabase-js failed to load")); };
+          document.head.appendChild(s);
+        });
+      }
+
+      function refreshMailto() {
+        var name = document.getElementById("f-name").value.trim();
+        var email = document.getElementById("f-email").value.trim();
+        var message = document.getElementById("f-message").value.trim();
+        var m = MSG[currentLang];
+        var body = m.fName + (name || m.filler) + "\n" + m.fEmail + email + "\n" + m.fMsg + (message || m.filler);
+        mailtoFallback.href =
+          "mailto:hedpat@mindleap.technology?subject=" +
+          encodeURIComponent(m.subject) +
+          "&body=" + encodeURIComponent(body);
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        mailtoFallback.classList.remove("show");
+
+        var email = document.getElementById("f-email").value.trim();
+        var m = MSG[currentLang];
+
+        if (!email) {
+          setStatus(m.needEmail, "err");
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          setStatus(m.badEmail, "err");
+          return;
+        }
+
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+          // The Supabase channel is not configured on this page yet.
+          refreshMailto();
+          setStatus(m.notReady, "warn");
+          mailtoFallback.classList.add("show");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        setStatus(m.sending, "");
+        try {
+          await loadSupabase();
+          var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          var name = document.getElementById("f-name").value.trim();
+          var message = document.getElementById("f-message").value.trim();
+          var result = await client.from("lead_contacts").insert([{ name: name || m.filler, email: email, message: message || m.filler }]);
+          if (result.error) throw result.error;
+          form.reset();
+          setStatus(m.ok, "ok");
+        } catch (err) {
+          refreshMailto();
+          setStatus(m.fail, "err");
+          mailtoFallback.classList.add("show");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
