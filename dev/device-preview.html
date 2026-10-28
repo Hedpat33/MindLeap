@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>MindLeap · 设备模拟</title>
+    <style>
+      :root {
+        --ink: #e8e8ed;
+        --muted: #8b8b93;
+        --line: #2a2a30;
+        --bg: #0b0b0d;
+        --accent: #5f96e8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(120% 80% at 50% 0%, #1a1a1f 0%, var(--bg) 60%);
+        color: var(--ink);
+        font-family: -apple-system, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 18px 16px 26px;
+        gap: 14px;
+      }
+      .bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .bar .label {
+        font-size: 12px;
+        letter-spacing: .16em;
+        color: var(--muted);
+        margin-right: 2px;
+      }
+      button {
+        font: inherit;
+        font-size: 13px;
+        padding: 7px 14px;
+        border-radius: 980px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+      }
+      button:hover { color: var(--ink); border-color: #4a4a52; }
+      button[aria-pressed="true"] {
+        color: #fff;
+        border-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 22%, transparent);
+      }
+      .divider { width: 1px; height: 18px; background: var(--line); margin: 0 6px; }
+
+      /* ---------- device shell ---------- */
+      .device {
+        position: relative;
+        background: linear-gradient(160deg, #3a3a40, #17171a 40%, #26262b 100%);
+        box-shadow:
+          0 0 0 1px #4a4a52,
+          0 30px 60px -20px rgba(0, 0, 0, .9),
+          0 0 90px -30px rgba(95, 150, 232, .3);
+      }
+      /* phone: bezel around a rounded screen, notch and home bar on top */
+      .device[data-kind="phone"] {
+        padding: 13px;
+        border-radius: 54px;
+      }
+      .screen {
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+      }
+      .device[data-kind="phone"] .screen { border-radius: 42px; }
+      iframe {
+        display: block;
+        border: 0;
+        background: #fff;
+      }
+      .notch {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+        width: 148px;
+        height: 28px;
+        background: #000;
+        border-radius: 0 0 18px 18px;
+        z-index: 3;
+        pointer-events: none;
+      }
+      .notch::after {
+        content: "";
+        position: absolute;
+        right: 34px;
+        top: 9px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #101014;
+        box-shadow: inset 0 0 0 1px #26262b;
+      }
+      .home-bar {
+        position: absolute;
+        left: 50%;
+        bottom: 7px;
+        transform: translateX(-50%);
+        width: 136px;
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(0, 0, 0, .28);
+        z-index: 3;
+        pointer-events: none;
+      }
+      .device[data-kind="phone"] .chrome { display: none; }
+
+      /* desktop: a window with traffic lights and an address bar */
+      .device[data-kind="pc"] {
+        padding: 0;
+        border-radius: 13px;
+        background: #1c1c20;
+        box-shadow:
+          0 0 0 1px #3a3a42,
+          0 30px 70px -24px rgba(0, 0, 0, .9);
+      }
+      .device[data-kind="pc"] .screen { border-radius: 0 0 13px 13px; }
+      .device[data-kind="pc"] .notch,
+      .device[data-kind="pc"] .home-bar { display: none; }
+      .chrome {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 40px;
+        padding: 0 14px;
+        background: #26262b;
+        border-bottom: 1px solid #34343c;
+        border-radius: 13px 13px 0 0;
+      }
+      .lights { display: flex; gap: 7px; }
+      .lights i {
+        display: block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      .lights i:nth-child(1) { background: #ff5f57; }
+      .lights i:nth-child(2) { background: #febc2e; }
+      .lights i:nth-child(3) { background: #28c840; }
+      .url {
+        flex: 1;
+        max-width: 460px;
+        height: 24px;
+        margin: 0 auto;
+        border-radius: 6px;
+        background: #17171a;
+        color: #9a9aa2;
+        font-size: 12px;
+        font-family: ui-monospace, Consolas, monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.7;
+        max-width: 560px;
+      }
+      .hint code {
+        font-family: ui-monospace, Consolas, monospace;
+        color: #a8c7f0;
+      }
+      .hint kbd {
+        font: inherit;
+        font-size: 11px;
+        padding: 1px 5px;
+        border-radius: 4px;
+        border: 1px solid var(--line);
+        color: #c9c9d1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <span class="label">形态</span>
+      <button type="button" data-kind="phone" aria-pressed="true">手机</button>
+      <button type="button" data-kind="pc">桌面</button>
+      <span class="divider"></span>
+      <span class="label">尺寸</span>
+      <span id="sizes" class="bar"></span>
+    </div>
+
+    <div class="bar">
+      <span class="label">缩放</span>
+      <button type="button" data-zoom=".4">40%</button>
+      <button type="button" data-zoom=".6">60%</button>
+      <button type="button" data-zoom=".85" aria-pressed="true">85%</button>
+      <button type="button" data-zoom="1">100%</button>
+    </div>
+
+    <div class="device" id="device" data-kind="phone">
+      <div class="chrome">
+        <span class="lights"><i></i><i></i><i></i></span>
+        <span class="url">127.0.0.1</span>
+      </div>
+      <div class="screen" id="screen">
+        <div class="notch"></div>
+        <iframe id="frame" src="../index.html" width="390" height="844" title="MindLeap"></iframe>
+        <div class="home-bar"></div>
+      </div>
+    </div>
+
+    <p class="hint">
+      外框里直接滚轮滚动即可翻屏（整屏吸附），右侧三个圆点可点击跳转。<br />
+      切到<strong>桌面</strong>可看大屏排版；内容若是旧的，按 <kbd>Ctrl</kbd> + <kbd>F5</kbd> 强制刷新。
+    </p>
+
+    <script>
+      var device = document.getElementById("device");
+      var frame = document.getElementById("frame");
+      var sizeBox = document.getElementById("sizes");
+
+      // always fetch the page fresh: the served index.html has no cache headers,
+      // so an iframe reload happily reuses a stale copy
+      frame.src = "../index.html?t=" + Date.now();
+
+      var MODES = {
+        phone: {
+          zoom: ".85",
+          sizes: [
+            ["iPhone 13 · 390", 390, 844],
+            ["iPhone SE · 375", 375, 667],
+            ["Pixel 7 · 412", 412, 915],
+            ["15 Pro Max · 430", 430, 932]
+          ]
+        },
+        pc: {
+          zoom: ".6",
+          sizes: [
+            ["桌面 · 1440", 1440, 900],
+            ["笔记本 · 1280", 1280, 800],
+            ["大屏 · 1920", 1920, 1080]
+          ]
+        }
+      };
+
+      var mode = "phone";
+      var current = 0;
+
+      function setZoom(z) {
+        device.style.zoom = z;
+        var btns = document.querySelectorAll("[data-zoom]");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-zoom") === z ? "true" : "false");
+        }
+      }
+
+      function applySize() {
+        var s = MODES[mode].sizes[current];
+        frame.setAttribute("width", s[1]);
+        frame.setAttribute("height", s[2]);
+        var btns = sizeBox.querySelectorAll("button");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].setAttribute("aria-pressed", i === current ? "true" : "false");
+        }
+      }
+
+      function buildSizes() {
+        sizeBox.innerHTML = "";
+        var list = MODES[mode].sizes;
+        for (var i = 0; i < list.length; i++) {
+          (function (idx) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.textContent = list[idx][0];
+            b.addEventListener("click", function () {
+              current = idx;
+              applySize();
+            });
+            sizeBox.appendChild(b);
+          })(i);
+        }
+      }
+
+      function applyMode(next) {
+        mode = next;
+        current = 0;
+        device.setAttribute("data-kind", mode === "pc" ? "pc" : "phone");
+        var kinds = document.querySelectorAll("[data-kind]");
+        for (var i = 0; i < kinds.length; i++) {
+          if (kinds[i] === device) continue;
+          kinds[i].setAttribute("aria-pressed", kinds[i].getAttribute("data-kind") === mode ? "true" : "false");
+        }
+        buildSizes();
+        applySize();
+        setZoom(MODES[mode].zoom);
+      }
+
+      var kindBtns = document.querySelectorAll("button[data-kind]");
+      for (var i = 0; i < kindBtns.length; i++) {
+        kindBtns[i].addEventListener("click", function () {
+          applyMode(this.getAttribute("data-kind"));
+        });
+      }
+
+      var zoomBtns = document.querySelectorAll("[data-zoom]");
+      for (var j = 0; j < zoomBtns.length; j++) {
+        zoomBtns[j].addEventListener("click", function () {
+          setZoom(this.getAttribute("data-zoom"));
+        });
+      }
+
+      applyMode("phone");
+    </script>
+  </body>
+</html>

@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Archivo:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -38,13 +38,51 @@
         --muted: #6e6e73;
         --faint: #86868b;
         --line: #d2d2d7;
-        --accent: #0071e3;
-        --link: #0066cc;
+        --accent: #2859c5;
+        --link: #1f4aa8;
         --accent-ink: #ffffff;
         --ok: #0c7a43;
         --warn: #9a6206;
         --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px;
         --s5: 32px; --s6: 48px; --s7: 64px; --s8: 96px;
+
+        /* ---------- type scale ----------
+           Five steps, and nothing outside them: display, lead, heading, body,
+           small — plus a fixed eyebrow for letter-spaced labels. Every step is
+           fluid: the first term is what a 390px phone gets, the middle term
+           tracks the viewport, the last term is the desk cap. The page should
+           read like a slide deck — one oversized line, one calm paragraph, and
+           labels that stay deliberately small. */
+        --content: clamp(1120px, 62vw, 1560px);
+        /* The headline is a single line of nine CJK glyphs. Binding it to the
+           column (not to the viewport) lets a wide monitor enlarge it instead
+           of leaving a hole; the 8.4vw term takes over once the column hits
+           the screen edge. */
+        --fs-display: min(8.4vw, calc((var(--content) - 64px) / 10.2));
+        --fs-lead: clamp(17px, 1.1vw + 6px, 28px);
+        --fs-h2: clamp(28px, 1.6vw + 17px, 56px);
+        --fs-h3: clamp(17px, .5vw + 11px, 22px);
+        --fs-body: clamp(15.5px, .45vw + 9.5px, 19px);
+        --fs-sm: clamp(14px, .3vw + 9.8px, 17px);
+        --fs-fine: clamp(12.5px, .2vw + 9.4px, 14.5px);
+        --fs-eyebrow: clamp(11.5px, .18vw + 9.2px, 13px);
+        --lh-display: 1.06;
+        --lh-heading: 1.18;
+        --lh-lead: 1.55;
+        --lh-body: 1.65;
+        --ls-display: -.03em;
+        --ls-heading: -.02em;
+        --ls-body: -.01em;
+        --ls-eyebrow: .18em;
+        /* vertical air around a whole screen, so tall monitors breathe too */
+        --screen-pad: clamp(56px, 7vh, 120px);
+
+        /* one trip of a stream from a device to the hub: the single beat that the
+           ripples, the streaks and the hub halo all share (JS mirrors it as FLOW_MS) */
+        --flow-dur: 3.2s;
+        --wire-dur: 2.4s;   /* one beam travelling a spoke */
+        --idle: .4;         /* a device while the ring turns */
+        --picked: .7;       /* a device under the pointer */
         color-scheme: light;
       }
       :root[data-theme="dark"] {
@@ -54,8 +92,8 @@
         --muted: #a1a1a6;
         --faint: #86868b;
         --line: #424245;
-        --accent: #0071e3;
-        --link: #2997ff;
+        --accent: #5f96e8;
+        --link: #7faef5;
         --accent-ink: #ffffff;
         --ok: #3ecf83;
         --warn: #e0a83e;
@@ -64,6 +102,13 @@
       :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+      /* Phone browsers never paint a scrollbar, and this page snaps a whole
+         screen at a time, so the desktop rail is noise on a layout that is
+         meant to read like a deck. Hiding it also stops it from eating 15px
+         of the viewport, which matters once the page is shown inside a phone
+         mock-up or an embedded frame. */
+      html { scrollbar-width: none; }
+      html::-webkit-scrollbar { width: 0; height: 0; }
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
       }
@@ -72,15 +117,17 @@
         background: var(--bg);
         color: var(--ink);
         font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-        font-size: 17px;
+        font-size: var(--fs-body);
         font-weight: 400;
-        line-height: 1.5;
-        letter-spacing: -0.022em;
+        line-height: var(--lh-body);
+        letter-spacing: var(--ls-body);
         -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
       }
       .en { font-family: "Archivo", "Noto Sans SC", system-ui, sans-serif; }
       a { color: inherit; }
-      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+      .wrap { max-width: var(--content); margin: 0 auto; padding: 0 24px; }
+      @media (min-width: 1600px) { .wrap { padding: 0 32px; } }
 
       /* ---------- nav: sticky frosted bar, after Apple's Design local nav.
          The 56px bar height is reserved by .screen (min-height + scroll-margin-top),
@@ -96,13 +143,13 @@
         display: flex; align-items: center; justify-content: space-between;
         height: 56px;
       }
-      .brand { font-size: 18px; font-weight: 700; letter-spacing: .04em; text-decoration: none; color: var(--ink); }
+      .brand { font-size: var(--fs-h3); font-weight: 700; letter-spacing: .04em; text-decoration: none; color: var(--ink); }
       .nav-controls { display: flex; align-items: center; gap: 8px; }
       .nav-btn {
         display: inline-flex; align-items: center; justify-content: center;
         min-width: 34px; height: 34px; padding: 0 10px;
         background: transparent; border: 1px solid var(--line); border-radius: 980px;
-        color: var(--muted); font: inherit; font-size: 13px; line-height: 1;
+        color: var(--muted); font: inherit; font-size: var(--fs-fine); line-height: 1;
         cursor: pointer;
         transition: color .2s ease, border-color .2s ease;
       }
@@ -113,10 +160,10 @@
       .ico-sun { -webkit-mask-image: url("assets/icons/sun.svg"); mask-image: url("assets/icons/sun.svg"); }
       .ico-android { -webkit-mask-image: url("assets/icons/android.svg"); mask-image: url("assets/icons/android.svg"); }
       .ico-apple { -webkit-mask-image: url("assets/icons/apple.svg"); mask-image: url("assets/icons/apple.svg"); }
-      .ico-laptop { -webkit-mask-image: url("assets/icons/laptop.svg"); mask-image: url("assets/icons/laptop.svg"); }
+      .ico-macbook { -webkit-mask-image: url("assets/icons/macbook.svg"); mask-image: url("assets/icons/macbook.svg"); }
       .ico-windows { -webkit-mask-image: url("assets/icons/windows.svg"); mask-image: url("assets/icons/windows.svg"); }
       .ico-glasses { -webkit-mask-image: url("assets/icons/glasses.svg"); mask-image: url("assets/icons/glasses.svg"); }
-      .ico-vr { -webkit-mask-image: url("assets/icons/vr-cardboard.svg"); mask-image: url("assets/icons/vr-cardboard.svg"); }
+      .ico-vr { -webkit-mask-image: url("assets/icons/vr-headset.svg"); mask-image: url("assets/icons/vr-headset.svg"); }
       .nav-btn .ico { width: 15px; height: 15px; }
       .nav-btn .ico-sun { display: none; }
       :root[data-theme="dark"] .nav-btn .ico-sun { display: block; }
@@ -130,59 +177,67 @@
         scroll-snap-align: start;
         scroll-margin-top: 56px;
         display: flex; flex-direction: column; justify-content: center;
-        padding: var(--s8) 0;
+        padding: var(--screen-pad) 0;
       }
       .screen > .wrap { width: 100%; }
-      @media (max-width: 820px) {
-        .screen { padding: var(--s7) 0; }
-      }
 
       /* ---------- hero ---------- */
       .hero { text-align: center; }
+      /* eyebrow: the small letter-spaced line above a headline. Kept small on
+         purpose — it is the one step that must not grow with the screen. */
       .app-tag {
-        display: flex; align-items: center; justify-content: center; gap: 12px;
-        font-size: 14px; letter-spacing: .3em; color: var(--muted);
-        margin: 0 0 var(--s5);
+        display: flex; align-items: center; justify-content: center;
+        gap: clamp(8px, .8vw, 16px);
+        font-size: var(--fs-sm); letter-spacing: var(--ls-eyebrow);
+        color: var(--muted);
+        margin: 0 0 clamp(24px, 2.6vw, 48px);
       }
       .app-tag .sep { color: var(--faint); letter-spacing: 0; }
       .app-name {
-        font-family: "Archivo", sans-serif; font-weight: 600; font-size: 17px;
-        color: var(--ink); letter-spacing: .03em;
+        font-family: "Archivo", sans-serif; font-weight: 600; font-size: 1.06em;
+        color: var(--ink); letter-spacing: .04em;
       }
       h1.headline {
-        font-size: clamp(40px, 8vw, 88px);
+        font-size: var(--fs-display);
         font-weight: 700;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
-        margin: 0 auto var(--s4);
+        line-height: var(--lh-display);
+        letter-spacing: var(--ls-display);
+        margin: 0 auto clamp(16px, 1.6vw, 32px);
         white-space: nowrap;
+        text-wrap: balance;
       }
-      /* Below ~560px the 40px floor of the clamp no longer fits the
-         single-line headline, so let the size track the viewport. */
-      @media (max-width: 560px) {
-        h1.headline { font-size: 8.4vw; }
-      }
-      /* The English headline is longer: let it wrap rather than overflow. */
-      html[lang="en"] h1.headline { white-space: normal; font-size: clamp(34px, 6.2vw, 68px); line-height: 1.12; }
+      /* The English headline is longer, so it wraps instead of overflowing and
+         sits a step below the Chinese one — same optical weight, more lines. */
+      html[lang="en"] h1.headline { white-space: normal; font-size: clamp(32px, 4.4vw + 16px, 96px); }
       html[lang="en"] .app-tag { letter-spacing: .14em; }
-      html[lang="en"] .orbit-vision .v-line1 { font-size: clamp(12.5px, 3.4vw, 17px); letter-spacing: .05em; }
-      html[lang="en"] .c-col h4.c-sub, html[lang="en"] .contact-line .k { letter-spacing: .1em; }
+      html[lang="en"] .orbit-vision .v-line1 { font-size: clamp(15px, .7vw + 11px, 30px); letter-spacing: .05em; }
+      html[lang="en"] .c-col h4.c-sub, html[lang="en"] .contact-line .k { letter-spacing: .12em; }
       h1.headline em { font-style: normal; color: var(--accent); }
+      /* lead: one calm paragraph under the headline. The measure is in em, so
+         the line length stays readable at every size instead of being pinned
+         to 620px. */
       .hero-sub {
-        font-size: clamp(19px, 2.4vw, 23px);
+        font-size: var(--fs-lead);
         font-weight: 400;
-        line-height: 1.5;
+        line-height: var(--lh-lead);
+        letter-spacing: var(--ls-body);
         color: var(--muted);
-        max-width: 620px;
-        margin: 0 auto var(--s6);
+        max-width: min(100%, 30em);
+        margin: 0 auto clamp(32px, 4vw, 72px);
       }
-      .hero-sub .dot { color: var(--faint); margin: 0 6px; }
+      .hero-sub .dot { color: var(--faint); margin: 0 .3em; }
+      /* the three 你 are the spine of the three clauses: the accent sits on the
+         pronoun, so it repeats three times instead of competing with the one
+         highlighted word in the headline */
+      .hero-sub .hl { font-style: normal; color: var(--accent); }
       .hero-sub .secret {
-        display: inline-block; margin-top: 10px;
+        display: inline-block; margin-top: .45em;
         font-style: normal; font-weight: 500; color: var(--accent);
       }
       .btn {
-        display: inline-block; padding: 10px 22px; font-size: 15px;
+        display: inline-block;
+        padding: clamp(10px, .7vw, 14px) clamp(22px, 1.5vw, 30px);
+        font-size: var(--fs-sm);
         border-radius: 980px; text-decoration: none; cursor: pointer;
         border: 1px solid transparent; font-family: inherit; font-weight: 400;
         transition: background-color .2s ease, color .2s ease, border-color .2s ease, filter .2s ease;
@@ -198,30 +253,94 @@
          smaller and fainter; JS positions them, icons stay upright */
       .orbit-stage {
         position: relative;
-        width: min(720px, 94vw);
-        aspect-ratio: 1 / 0.7;
+        width: min(760px, 94vw);
+        /* the box hugs the flat ellipse instead of reserving a square-ish
+           void underneath it, so the caption can sit where it looks attached
+           whatever the type size does */
+        aspect-ratio: 1 / 0.42;
         margin: 0 auto;
         --rx: min(296px, 42vw);
         --ry: calc(var(--rx) * 0.25);
+      }
+      /* On a desk-sized monitor the ring earns more room, so the drawing keeps
+         the same weight against the bigger type. The JS mirrors this step in
+         rxNow() — both must change together. */
+      @media (min-width: 1600px) {
+        .orbit-stage { width: min(920px, 94vw); --rx: 388px; }
       }
       /* centre halo: same ellipse as the orbit (aspect 0.25), same centre;
          JS pulses its opacity at 72/min */
       .orbit-halo {
         position: absolute; left: 50%; top: 50%;
-        width: 88%; aspect-ratio: 1 / 0.25;
+        width: 64%; aspect-ratio: 1 / 0.28;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        background: radial-gradient(ellipse at center, rgba(0, 113, 227, 0.22) 0%, rgba(0, 113, 227, 0.10) 45%, rgba(0, 113, 227, 0) 72%);
+        background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent) 20%, transparent) 0%, color-mix(in srgb, var(--accent) 9%, transparent) 45%, transparent 72%);
         pointer-events: none;
       }
+      /* The hub is water: three ellipse rings a third of a cycle apart. Width and
+         height are animated instead of transform: scale, so the 1px stroke stays
+         1px for the whole trip; each ring is born as a small circle and dies as the
+         orbit's own ellipse, so the wave deforms with the perspective. */
+      .orbit-ripples { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+      .orbit-ripples span {
+        position: absolute; left: 50%; top: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px; height: 16px;
+        border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+        border-radius: 50%;
+        opacity: 0;
+        animation: orbit-ripple var(--flow-dur) cubic-bezier(0, .2, .8, 1) infinite;
+      }
+      .orbit-ripples span:nth-child(2) { animation-delay: calc(var(--flow-dur) * -.3333); }
+      .orbit-ripples span:nth-child(3) { animation-delay: calc(var(--flow-dur) * -.6666); }
+      @keyframes orbit-ripple {
+        0%   { width: 16px; height: 16px; opacity: 0; }
+        8%   { opacity: .9; }
+        100% { width: calc(var(--rx) * 2); height: calc(var(--ry) * 2); opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) { .orbit-ripples span { animation-duration: 6.4s; } }
+      /* Spokes as beams: a dash of 18 out of a normalised 100-unit path slides from
+         the device into the hub, so each spoke reads as one pulse of water rather
+         than a fading line. pathLength="100" keeps the dash proportional however
+         far the S curve stretches while the ring turns. */
+      .orbit-wires {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        overflow: visible;
+        z-index: 2;
+      }
+      .wire-base, .wire-core { fill: none; stroke-linecap: round; }
+      .wire-base { stroke-width: 1.2; opacity: .26; }
+      .wire-core {
+        stroke-width: 2.6;
+        stroke-dasharray: 18 100;
+        stroke-dashoffset: 100;
+        animation: wire-flow var(--wire-dur) linear infinite;
+      }
+      @keyframes wire-flow {
+        from { stroke-dashoffset: 100; }
+        to   { stroke-dashoffset: -18; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .wire-core { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; }
+      }
+      /* Each device carries its own brand colour: the mark, the rim and its beam
+         all read from --c. Idle they sit at 40%; under the pointer they lift to
+         70%, so the ring stays quiet and only the picked device comes forward. */
       .orbit-dev {
+        --c: var(--muted);
         position: absolute; left: 50%; top: 50%;
         will-change: transform, opacity;
         pointer-events: none;
+        opacity: var(--idle);
+        transition: opacity .25s ease;
       }
+      .orbit-dev.is-hover { opacity: var(--picked); }
       .dev-glow {
         position: absolute; left: 50%; top: 50%;
-        width: calc(var(--rx) * 0.2615); height: calc(var(--rx) * 0.2615);
+        width: calc(var(--rx) * 0.30); height: calc(var(--rx) * 0.30);
         transform: translate(-50%, -50%);
         border-radius: 50%;
         background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 42%, rgba(255, 255, 255, 0) 68%);
@@ -230,14 +349,22 @@
       .chip {
         position: relative;
         display: inline-flex; align-items: center; justify-content: center;
-        width: max(26px, calc(var(--rx) * 0.1304)); height: max(26px, calc(var(--rx) * 0.1304)); border-radius: 50%;
-        background: var(--bg); border: 1px solid var(--line);
-        color: var(--muted); font-size: max(13px, calc(var(--rx) * 0.0676));
+        width: max(30px, calc(var(--rx) * 0.155)); height: max(30px, calc(var(--rx) * 0.155)); border-radius: 50%;
+        background: var(--bg);
+        border: 1px solid color-mix(in srgb, var(--c) 40%, var(--line));
+        color: var(--c);
+        font-size: max(14px, calc(var(--rx) * 0.078));
+        transition: background-color .25s ease, border-color .25s ease, box-shadow .25s ease;
+      }
+      .orbit-dev.is-hover .chip {
+        background: color-mix(in srgb, var(--c) 9%, var(--bg));
+        border-color: var(--c);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 12%, transparent);
       }
       .chip .ico { width: 1em; height: 1em; }
       /* names stay hidden until the device is hovered or focused */
       .chip-name {
-        position: absolute; left: 50%; top: calc(var(--rx) * 0.1554); transform: translateX(-50%);
+        position: absolute; left: 50%; top: calc(var(--rx) * 0.185); transform: translateX(-50%);
         font-size: calc(var(--rx) * 0.071); letter-spacing: .05em; color: var(--faint); white-space: nowrap; line-height: 1.2;
         opacity: 0; transition: opacity .25s ease;
         pointer-events: none;
@@ -246,89 +373,215 @@
       /* enlarged hover hot zone over the device ball */
       .dev-hit {
         position: absolute; left: 50%; top: 50%;
-        width: calc(var(--rx) * 0.3784); height: calc(var(--rx) * 0.3784); border-radius: 50%;
+        width: calc(var(--rx) * 0.42); height: calc(var(--rx) * 0.42); border-radius: 50%;
         transform: translate(-50%, -50%);
         pointer-events: auto; cursor: pointer;
       }
       .orbit-center {
         position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 4;
+        z-index: 6;
         text-align: center;
         pointer-events: none;
       }
-      /* no card any more: the AI icon and home badge float bare at centre */
       .char-icon {
         position: relative;
-        width: calc(var(--rx) * 0.3311); height: calc(var(--rx) * 0.3311); margin: 0 auto;
+        width: calc(var(--rx) * 0.266); height: calc(var(--rx) * 0.266); margin: 0 auto;
         display: flex; align-items: center; justify-content: center;
       }
-      .char-icon .ai-flat { display: block; width: calc(var(--rx) * 0.2973); height: calc(var(--rx) * 0.2973); }
-      .home-badge {
-        position: absolute; right: 0; bottom: 0;
-        width: calc(var(--rx) * 0.1351); height: calc(var(--rx) * 0.1351); border-radius: 50%;
-        /* Badge blue is pinned: it stays as approved, outside the accent token. */
-        background: #002fa7; color: var(--accent-ink);
-        display: flex; align-items: center; justify-content: center;
-        border: calc(var(--rx) * 0.0135) solid var(--bg);
+      /* ambient bloom behind the sphere so it sits in the room, not on the page */
+      .char-icon::before {
+        content: ""; position: absolute; left: 50%; top: 50%;
+        width: 190%; height: 190%; transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(circle, color-mix(in srgb, var(--accent) 13%, transparent) 0%, transparent 62%);
+        pointer-events: none;
       }
-      .home-badge svg { width: calc(var(--rx) * 0.0676); height: calc(var(--rx) * 0.0676); }
+      /* A crystal sphere rather than a solid ball: the middle is genuinely clear,
+         the wall is thin and hard, and the highlights are small and sharp. A
+         dispersion ring adds the faint rainbow a faceted solid throws at its rim
+         (the same three cues Apple's liquid glass leans on: refraction, a caustic
+         edge, a specular). Blur is deliberately near zero — crystal is sharp. */
+      .crystal {
+        position: relative;
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background:
+          radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0) 0 58%,
+            rgba(150, 190, 255, .12) 68%,
+            rgba(70, 120, 210, .20) 82%,
+            rgba(255, 255, 255, .55) 91%,
+            rgba(255, 255, 255, .92) 96%,
+            rgba(196, 224, 255, .55) 100%);
+        -webkit-backdrop-filter: blur(.6px) saturate(1.2) brightness(1.03);
+        backdrop-filter: blur(.6px) saturate(1.2) brightness(1.03);
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, .9),
+          inset 0 7px 13px -7px rgba(255, 255, 255, .95),
+          inset 0 -4px 9px -4px rgba(255, 255, 255, .7),
+          0 12px 24px -14px rgba(28, 58, 132, .42),
+          0 0 20px -10px rgba(120, 170, 255, .5);
+      }
+      .crystal::before {
+        content: "";
+        position: absolute; left: 23%; top: 11%;
+        width: 25%; height: 16%;
+        border-radius: 50%;
+        transform: rotate(-16deg);
+        background: radial-gradient(ellipse at 40% 40%,
+          #ffffff 0%, rgba(255, 255, 255, .85) 38%, rgba(255, 255, 255, .12) 70%, transparent 84%);
+        filter: blur(.4px);
+        z-index: 3;
+        pointer-events: none;
+      }
+      .crystal::after {
+        content: "";
+        position: absolute; left: 50%; bottom: 7%;
+        width: 46%; height: 14%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(214,234,255,.55) 44%, transparent 74%);
+        filter: blur(2px);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .crystal-iris {
+        position: absolute; inset: 0;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 2;
+        background: conic-gradient(from 205deg,
+          rgba(255, 96, 140, .9), rgba(255, 205, 96, .7), rgba(120, 255, 200, .6),
+          rgba(90, 160, 255, .9), rgba(196, 120, 255, .8), rgba(255, 96, 140, .9));
+        -webkit-mask: radial-gradient(circle at 50% 50%, transparent 87%, #000 92%, #000 96%, transparent 99%);
+        mask: radial-gradient(circle at 50% 50%, transparent 87%, #000 92%, #000 96%, transparent 99%);
+        opacity: .28;
+      }
+      /* gloss laid over the mark so the icon is seen *through* the sphere: the
+         reflection band crosses it and brightens part of it, which is what stops
+         the mark from reading as a sticker on the surface */
+      .crystal-gloss {
+        position: absolute; inset: 0;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 3;
+        background:
+          linear-gradient(184deg, transparent 54%, rgba(255,255,255,.55) 66%, rgba(255,255,255,.16) 73%, transparent 79%),
+          radial-gradient(ellipse 44% 22% at 30% 13%, rgba(255,255,255,.8) 0%, transparent 70%),
+          radial-gradient(circle at 79% 79%, rgba(255,255,255,.3) 0%, transparent 38%);
+        mix-blend-mode: screen;
+      }
+      .crystal .ai-flat {
+        position: relative;
+        z-index: 2;
+        width: 74%; height: 74%;
+        color: var(--accent);
+      }
+      /* the star the right eye becomes at the bottom of a blink: same colour as
+         the eye, so the eye looks like it collapses into it */
+      .blink-spark {
+        position: absolute;
+        left: 53.2%; top: 50.2%;
+        width: 12%; height: 12%;
+        pointer-events: none;
+        opacity: 0;
+        z-index: 4;
+        color: var(--accent);
+        filter: drop-shadow(0 0 2px rgba(40, 89, 197, .7));
+      }
+      .blink-spark svg { display: block; width: 100%; height: 100%; }
+      /* gold seal set into the glass, not stuck on it: it sits under the gloss so
+         the reflection band sweeps across it, and its edge overlaps the rim. The
+         mark is cut in dark gold on a bright metal face, as a struck medal reads. */
+      .gem {
+        position: absolute; right: 2%; bottom: 2%;
+        width: 36%; height: 36%;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background:
+          radial-gradient(circle at 32% 26%,
+            #fff8dc 0%, #ffe08a 26%, #f0b62c 54%, #c8891a 78%, #9c6208 100%);
+        -webkit-backdrop-filter: blur(2px) saturate(1.1);
+        backdrop-filter: blur(2px) saturate(1.1);
+        box-shadow:
+          inset 0 0 0 .8px rgba(255, 240, 180, .95),
+          inset 0 -2px 4px -1px rgba(112, 66, 0, .55),
+          inset 0 2px 3px -1px rgba(255, 255, 220, .8),
+          0 2px 6px -2px rgba(120, 80, 0, .40);
+        z-index: 2;
+      }
+      .gem::before {
+        content: "";
+        position: absolute; left: 16%; top: 10%;
+        width: 38%; height: 26%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 46%, transparent 74%);
+        filter: blur(.6px);
+      }
+      .gem svg {
+        position: relative;
+        width: 66%; height: 66%;
+        color: #6b4304;
+        filter: drop-shadow(0 1px 0 rgba(255, 246, 200, .7));
+      }
 
       /* ---------- sections ---------- */
       /* overflow-x: clip keeps any stray transformed content from widening
          the page on narrow screens; nothing visible reaches the section
          edges, so the orbit itself is never clipped. */
-      .screen-orbit { justify-content: flex-start; padding-top: var(--s7); overflow-x: clip; }
+      .screen-orbit { justify-content: center; padding: var(--s7) 0; overflow-x: clip; }
       @media (max-width: 820px) {
         .screen-orbit { padding-top: var(--s6); }
       }
       /* Screen 3 separates by surface colour (var(--bg-alt)), not a rule. */
       .screen-contact { background: var(--bg-alt); justify-content: flex-start; }
-      .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: var(--s6); }
-      h2 { font-size: clamp(28px, 3.6vw, 36px); font-weight: 600; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
-      .sec-note { color: var(--faint); font-size: 14px; margin-left: auto; text-align: right; }
+      .sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: clamp(28px, 3.4vw, 64px); }
+      h2 { font-size: var(--fs-h2); font-weight: 600; line-height: var(--lh-heading); margin: 0; letter-spacing: var(--ls-heading); }
+      .sec-note { color: var(--faint); font-size: var(--fs-fine); margin-left: auto; text-align: right; }
       @media (max-width: 640px) { .sec-note { display: none; } }
 
-      /* vision: caption under the orbit image, two lines with separate
-         styles: line 1 is the original small ink text, line 2 stays the
-         large hero-accent blue. The block as a whole stays centered. */
+      /* vision: the vow under the orbit image. Both lines are heading-sized
+         on purpose — this screen is a rest beat in the deck, so it has to
+         carry weight, not whisper. Hierarchy is made by weight and colour
+         (line 1 medium ink, line 2 bold accent) rather than by shrinking
+         line 1 into a caption. */
       .orbit-vision {
         text-align: center;
-        line-height: 1.8;
-        max-width: 860px; margin: var(--s6) auto 0;
-        /* shift the whole block up by exactly its own height (both lines
-           plus their line spacing); layout and line spacing stay as-is */
-        transform: translateY(-100%);
+        line-height: 1.3;
+        max-width: 100%; margin: clamp(20px, 2.6vw, 48px) auto 0;
       }
       .orbit-vision .v-line1 {
-        font-size: clamp(16px, 2vw, 19px); font-weight: 700;
-        letter-spacing: .1em;
+        font-size: var(--fs-h2); font-weight: 500;
+        letter-spacing: .05em;
         color: var(--ink);
       }
-      .orbit-vision .v-line1 .dot { color: var(--faint); margin: 0 .8em; font-weight: 400; }
+      /* each phrase is atomic: a line may break between phrases, never inside
+         one, and the separator keeps company with the phrase before it */
+      .orbit-vision .v-line1 .ph { display: inline-block; }
+      .orbit-vision .v-line1 .dot { color: var(--faint); margin: 0 .5em; font-weight: 400; }
       .orbit-vision .v-line2 {
-        font-size: clamp(22px, 3.4vw, 37px); font-weight: 700;
-        letter-spacing: .06em;
+        display: inline-block; margin-top: .08em;
+        font-size: clamp(38px, 3.8vw + 12px, 104px); font-weight: 700;
+        letter-spacing: .04em;
         color: var(--accent);
       }
+      /* On a phone the three phrases stack, one per line, instead of breaking
+         wherever the measure runs out — a vow split by a stray middle dot
+         reads as a mistake. */
       @media (max-width: 480px) {
-        .orbit-vision .v-line1 { letter-spacing: .04em; }
-        .orbit-vision .v-line1 .dot { margin: 0 .35em; }
-        .orbit-vision .v-line2 { font-size: clamp(20px, 6vw, 24px); letter-spacing: .04em; }
+        .orbit-vision .v-line1 {
+          display: flex; flex-direction: column; gap: .12em;
+          letter-spacing: .02em;
+        }
+        .orbit-vision .v-line1 .dot { display: none; }
       }
 
       /* contact: three columns, smaller type */
-      .contact-grid { display: grid; grid-template-columns: 1.1fr 1fr 1.25fr; gap: 44px; }
-      /* vertical dividers between the three columns: a hairline that fades
-         in from transparent at the top, sits grey through the middle, and
-         fades out at the bottom; spans the full column height. */
+      .contact-grid { display: grid; grid-template-columns: 1.05fr 1fr 1.15fr; gap: clamp(40px, 4.4vw, 88px); }
       .c-col { position: relative; }
-      .c-col + .c-col::before {
-        content: ""; position: absolute; top: 0; bottom: 0; left: -22px;
-        width: 1px;
-        background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--faint) 55%, transparent) 18%, color-mix(in srgb, var(--faint) 55%, transparent) 82%, transparent);
-      }
-      .c-col h4.c-sub { font-size: 12px; font-weight: 500; letter-spacing: .25em; color: var(--faint); margin: 24px 0 8px; }
+      .c-col h4.c-sub { font-size: var(--fs-eyebrow); font-weight: 500; letter-spacing: var(--ls-eyebrow); color: var(--faint); margin: clamp(20px, 2vw, 34px) 0 8px; }
       /* personal-communication column: two side-by-side sub-columns above the form */
       .comm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
       .comm-split .c-sub { margin-top: 10px; }
@@ -336,7 +589,6 @@
       @media (max-width: 560px) { .comm-split { grid-template-columns: 1fr; } }
       @media (max-width: 820px) {
         .contact-grid { grid-template-columns: 1fr; gap: 32px; }
-        .c-col + .c-col::before { display: none; }
         /* the join form has no backend yet: hide it on phones */
         #lead-form, .reply-note { display: none; }
         /* tighten the contact screen so one full page still fits the viewport */
@@ -347,39 +599,25 @@
         .screen-contact .comm-split p { margin-bottom: 12px; }
         .screen-contact footer { padding: 20px 0 24px; }
       }
-      .c-col h3 { font-size: 16px; font-weight: 600; margin: 0 0 16px; letter-spacing: .02em; }
-      .c-col p { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
-      .c-col p.reply-note { color: var(--faint); font-size: 12.5px; margin: 20px 0 0; }
-      .c-col .btn { font-size: 14px; padding: 10px 22px; }
-      .timeline { position: relative; margin-top: 16px; border-top: 2px solid var(--line); }
-      .tl-node { position: relative; padding-top: 18px; }
-      .tl-dot {
-        position: absolute; top: -7px; left: 0;
-        width: 10px; height: 10px; border-radius: 50%;
-        background: var(--accent); border: 2px solid var(--bg-alt);
-        box-shadow: 0 0 0 1px var(--line);
-      }
-      .c-col .tl-date {
-        font-family: "Archivo", sans-serif; font-size: 17px; color: var(--ink);
-        font-weight: 500; letter-spacing: .03em; margin: 0 0 2px; white-space: nowrap;
-      }
-      .c-col .tl-text { font-size: 14px; color: var(--muted); margin: 0; }
-      .contact-line { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-      .contact-line:first-of-type { border-top: 1px solid var(--line); }
-      .contact-line .k { display: block; font-size: 11px; letter-spacing: .25em; color: var(--faint); margin-bottom: 3px; }
+      .c-col h3 { font-size: var(--fs-h3); font-weight: 600; margin: 0 0 clamp(14px, 1.4vw, 24px); letter-spacing: .01em; color: var(--ink); }
+      .c-col p { color: var(--muted); font-size: var(--fs-body); line-height: var(--lh-body); margin: 0 0 clamp(12px, 1.1vw, 20px); }
+      .c-col p.reply-note { color: var(--faint); font-size: var(--fs-fine); margin: clamp(16px, 1.4vw, 24px) 0 0; }
+      .c-col .btn { font-size: var(--fs-sm); padding: clamp(9px, .6vw, 13px) clamp(20px, 1.4vw, 28px); }
+      .contact-line { padding: clamp(10px, 1vw, 18px) 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); font-size: var(--fs-body); }
+      .contact-line .k { display: block; font-size: var(--fs-eyebrow); letter-spacing: var(--ls-eyebrow); color: var(--faint); margin-bottom: 3px; }
       .contact-line a { color: var(--link); text-decoration: none; transition: color .2s ease; }
       .contact-line a:hover { text-decoration: underline; }
       form { display: grid; gap: var(--s3); }
-      label { display: block; font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: var(--s2); letter-spacing: .02em; }
+      label { display: block; font-size: var(--fs-sm); font-weight: 500; color: var(--muted); margin-bottom: var(--s2); letter-spacing: .02em; }
       input {
-        width: 100%; height: 44px; padding: 0 14px; font: inherit; font-size: 16px; font-weight: 400;
+        width: 100%; height: clamp(44px, 3.4vw, 52px); padding: 0 14px; font: inherit; font-size: clamp(16px, .25vw + 12px, 18px); font-weight: 400;
         background: var(--bg); color: var(--ink);
         border: 1px solid var(--line); border-radius: 12px;
         transition: border-color .2s ease, box-shadow .2s ease;
       }
       input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
       textarea {
-        width: 100%; min-height: 108px; padding: 12px 14px; font: inherit; font-size: 16px; font-weight: 400;
+        width: 100%; min-height: 108px; padding: 12px 14px; font: inherit; font-size: clamp(16px, .25vw + 12px, 18px); font-weight: 400;
         background: var(--bg); color: var(--ink);
         border: 1px solid var(--line); border-radius: 12px;
         resize: vertical;
@@ -387,19 +625,60 @@
       }
       textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
       ::placeholder { color: var(--faint); }
-      .form-status { font-size: 13px; min-height: 22px; margin: 0; }
+      .form-status { font-size: var(--fs-fine); min-height: 22px; margin: 0; }
       .form-status.ok { color: var(--ok); }
       .form-status.warn { color: var(--warn); }
       .form-status.err { color: #c62f3b; }
-      .mailto-fallback { display: none; font-size: 13px; }
+      .mailto-fallback { display: none; font-size: var(--fs-fine); }
       .mailto-fallback.show { display: inline-block; }
 
       footer {
         width: 100%; margin-top: auto;
-        border-top: 1px solid var(--line); padding: 30px 0 40px;
-        font-size: 12.5px; color: var(--faint);
+        border-top: 1px solid var(--line);
+        padding: clamp(24px, 2.4vw, 44px) 0 clamp(28px, 3vw, 56px);
+        font-size: var(--fs-fine); color: var(--faint);
       }
-      footer .slogan-line { letter-spacing: .05em; font-size: 12px; text-align: left; line-height: 1.7; }
+      footer .slogan-line { letter-spacing: .05em; font-size: 1em; text-align: left; line-height: 1.7; }
+
+      /* ---------- pager: one dot per screen, pinned to the right edge ----------
+         The deck hides the scrollbar, so these carry the "how much is left"
+         signal instead. They are anchors, not buttons: href="#id" keeps the
+         jump working without JS, and smooth scrolling is already global. */
+      .pager {
+        position: fixed; right: 22px; top: 50%;
+        transform: translateY(-50%);
+        display: flex; flex-direction: column; align-items: center;
+        z-index: 15;
+      }
+      /* Each dot owns a fixed 28px slot and the mark itself is a pseudo-element.
+         That way the current page can stretch into a 3x22 bar without the whole
+         stack shifting, and three spots stop reading as a stray ellipsis next
+         to the headline — a bar says "you are on the 2nd of 3". */
+      .pager-dot {
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px;
+      }
+      .pager-dot::before {
+        content: "";
+        width: 8px; height: 8px; border-radius: 99px;
+        background: color-mix(in srgb, var(--ink) 22%, transparent);
+        transition: width .28s ease, height .28s cubic-bezier(.3,.7,.3,1), background-color .25s ease;
+      }
+      /* the mark stays small but the target you can hit does not */
+      .pager-dot::after { content: ""; position: absolute; inset: -6px; }
+      .pager-dot:hover::before { background: color-mix(in srgb, var(--ink) 46%, transparent); }
+      .pager-dot.is-active::before { width: 3px; height: 22px; background: var(--accent); }
+      /* Between 820 and 1280 the column is viewport-bound and its right edge
+         comes within 24px of the screen, so pull the dots into that margin
+         instead of letting them graze the last column. */
+      @media (min-width: 820px) and (max-width: 1280px) { .pager { right: 6px; } }
+      @media (max-width: 820px) {
+        .pager { right: 3px; }
+        .pager-dot { width: 24px; height: 24px; }
+        .pager-dot::before { width: 6px; height: 6px; }
+        .pager-dot.is-active::before { width: 3px; height: 18px; }
+      }
     </style>
   </head>
   <body>
@@ -415,40 +694,47 @@
 
     <main id="top">
       <!-- Screen 1: hero -->
-      <section class="screen screen-hero">
+      <section id="hero" class="screen screen-hero">
       <div class="wrap hero">
         <p class="app-tag">
           <span class="app-name">EchoSpark</span>
           <span class="sep">·</span>
           <span data-i18n="tagline">本地一体化 AI 服务</span>
         </p>
-        <h1 class="headline" data-i18n="headline">伴您终身的<em>私人</em>助理</h1>
+        <h1 class="headline" data-i18n="headline">值得你托付终身的<em>伙伴</em></h1>
         <p class="hero-sub" data-i18n="heroSub">
-          全天候陪伴<span class="dot">·</span>了解您的一切<span class="dot">·</span>熟悉您的喜好<br />
-          <em class="secret">永远保守您的秘密</em>
+          陪伴<em class="hl">你</em>的日常<span class="dot">·</span>熟悉<em class="hl">你</em>的喜好<span class="dot">·</span>打点<em class="hl">你</em>的一切<br />
+          <em class="secret">永恒守护你的隐私</em>
         </p>
       </div>
       </section>
 
       <!-- Screen 2: orbit + vision -->
-      <section class="screen screen-orbit">
+      <section id="orbit" class="screen screen-orbit">
       <div class="wrap">
         <div class="orbit-stage" role="img" data-i18n-aria="orbitAria" aria-label="EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入">
           <div class="orbit-halo" aria-hidden="true"></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-android" aria-hidden="true"></span></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-apple" aria-hidden="true"></span></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-laptop" aria-hidden="true"></span></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-windows" aria-hidden="true"></span></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-glasses" aria-hidden="true"></span></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipVR" aria-label="VR 头盔 VR Headset"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-vr" aria-hidden="true"></span></span><span class="chip-name en">VR Headset</span><span class="dev-hit"></span></div>
+          <div class="orbit-ripples" aria-hidden="true"><span></span><span></span><span></span></div>
+          <svg class="orbit-wires" aria-hidden="true"></svg>
+          <div class="orbit-dev" data-dev style="--c:#3ddc84" role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-android" aria-hidden="true"></span></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#8e8e93" role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-apple" aria-hidden="true"></span></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#bf5af2" role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-macbook" aria-hidden="true"></span></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#0078d4" role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-windows" aria-hidden="true"></span></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#ffd60a" role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-glasses" aria-hidden="true"></span></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#22d3ee" role="img" data-i18n-aria="chipVR" aria-label="VR 头盔 VR Headset"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-vr" aria-hidden="true"></span></span><span class="chip-name en">VR Headset</span><span class="dev-hit"></span></div>
           <div class="orbit-center">
             <div class="char-icon">
-              <svg class="ai-flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true"><path d="M4 17 L31 17 Q34 17 34 21 L34 26 Q34 30 38 31 Q42 32 42 37 L42 40 Q42 45 37 45 L30 45 Q27 45 27 42 L27 39 L16 39 L16 42 Q16 45 13 45 L5 45 Q1 45 1 41 L1 26 Q1 21 2 19 Q3 17 4 17 Z" fill="#5F96E8"/><path d="M12.5 24 Q14 27 17 28.5 Q14 30 12.5 33 Q11 30 8 28.5 Q11 27 12.5 24 Z" fill="#2859C5"/><path d="M36.5 0 Q39 8.5 47 11 Q39 13.5 36.5 22 Q34 13.5 26 11 Q34 8.5 36.5 0 Z" fill="#2859C5"/></svg>
-              <span class="home-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9h11v-9"/></svg></span>
+              <div class="crystal">
+                <svg class="ai-flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><rect class="eye-l" x="8" y="12" width="2" height="4" rx="1" fill="currentColor" stroke="none"/><rect class="eye-r" x="14" y="12" width="2" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+                <span class="blink-spark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c.7 6.5 5.5 11.3 12 12-6.5.7-11.3 5.5-12 12-.7-6.5-5.5-11.3-12-12C6.5 11.3 11.3 6.5 12 0z"/></svg></span>
+                <span class="crystal-iris" aria-hidden="true"></span>
+                <span class="gem" role="img" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10v9h11v-9"/></svg></span>
+                <span class="crystal-gloss" aria-hidden="true"></span>
+              </div>
             </div>
           </div>
         </div>
-        <p class="orbit-vision"><span class="v-line1" data-i18n="vision1">顺境或逆旅<span class="dot">·</span>富贵或贫穷<span class="dot">·</span>健康或疾病</span><br /><span class="v-line2" data-i18n="vision2">伴您同行</span></p>
+        <p class="orbit-vision"><span class="v-line1" data-i18n="vision1"><span class="ph">故乡或远方</span><span class="dot">·</span><span class="ph">顺境或逆旅</span><span class="dot">·</span><span class="ph">总角或耄耋</span></span><br /><span class="v-line2" data-i18n="vision2">伴你同行</span></p>
       </div>
       </section>
 
@@ -461,16 +747,7 @@
           <div class="contact-grid">
             <div class="c-col">
               <h3 data-i18n="col1Title">项目介绍</h3>
-              <h4 class="c-sub" data-i18n="teamSub">人员组成</h4>
-              <p data-i18n="teamText">团队成员来自 <span class="en">Alibaba</span>、<span class="en">Tencent</span>、<span class="en">ByteDance</span> 资深研发。</p>
-              <h4 class="c-sub" data-i18n="msSub">里程碑</h4>
-              <div class="timeline">
-                <div class="tl-node">
-                  <span class="tl-dot" aria-hidden="true"></span>
-                  <p class="tl-date en">2026 · 10 · 10</p>
-                  <p class="tl-text" data-i18n="tlText">MindLeap 诞生</p>
-                </div>
-              </div>
+              <p data-i18n="teamText">MindLeap 诞生于 2026 年 10 月 10 日。团队成员来自 <span class="en">Alibaba</span>、<span class="en">Tencent</span>、<span class="en">ByteDance</span> 资深研发。</p>
             </div>
             <div class="c-col">
               <h3 data-i18n="col2Title">公司合作</h3>
@@ -485,21 +762,12 @@
               </div>
             </div>
             <div class="c-col">
-              <h3 data-i18n="col3Title">个人沟通</h3>
-              <div class="comm-split">
-                <div class="comm-side">
-                  <h4 class="c-sub" data-i18n="geekSub">极客交流</h4>
-                  <p data-i18n="geekText">欢迎沟通交流。</p>
-                </div>
-                <div class="comm-side">
-                  <h4 class="c-sub" data-i18n="partnerSub">合伙人招募</h4>
-                  <p data-i18n="partnerText">2/3D UI 设计达人<br />LLM 微调达人</p>
-                </div>
-              </div>
+              <h3 data-i18n="col3Title">合伙人招募</h3>
+              <p data-i18n="partnerText">2/3D UI 设计达人<br />LLM 微调达人</p>
               <form id="lead-form" novalidate>
                 <div>
                   <label for="f-name" data-i18n="labelName">姓名</label>
-                  <input id="f-name" name="name" type="text" autocomplete="name" data-i18n-ph="phName" placeholder="怎么称呼您" />
+                  <input id="f-name" name="name" type="text" autocomplete="name" data-i18n-ph="phName" placeholder="怎么称呼你" />
                 </div>
                 <div>
                   <label for="f-email" data-i18n="labelEmail">邮箱</label>
@@ -507,7 +775,7 @@
                 </div>
                 <div>
                   <label for="f-message" data-i18n="labelMsg">留言</label>
-                  <textarea id="f-message" name="message" rows="3" data-i18n-ph="phMsg" placeholder="说说您的来意"></textarea>
+                  <textarea id="f-message" name="message" rows="3" data-i18n-ph="phMsg" placeholder="说说你的来意"></textarea>
                 </div>
                 <div>
                   <button class="btn btn-solid" type="submit" id="submit-btn" data-i18n="submitBtn">提交留言</button>
@@ -528,6 +796,12 @@
       </section>
     </main>
 
+    <nav class="pager" aria-label="分页导航 / Page navigation">
+      <a class="pager-dot" href="#hero" aria-label="第 1 屏 · 首页 / Screen 1: hero"></a>
+      <a class="pager-dot" href="#orbit" aria-label="第 2 屏 · 设备 / Screen 2: devices"></a>
+      <a class="pager-dot" href="#contact" aria-label="第 3 屏 · 关于我们 / Screen 3: about"></a>
+    </nav>
+
     <script>
       // Supabase personal-join form (name, email, message).
       // Fill in the two values below with the project's URL and anon (public) key
@@ -543,24 +817,21 @@
       // addresses and the footer slogan are language-neutral and not listed.
       var I18N = {
         tagline: { zh: "本地一体化 AI 服务", en: "Local All-in-One AI Service" },
-        headline: { zh: "伴您终身的<em>私人</em>助理", en: "Your Lifelong <em>Private</em> Assistant" },
-        heroSub: { zh: "全天候陪伴<span class=\"dot\">·</span>了解您的一切<span class=\"dot\">·</span>熟悉您的喜好<br /><em class=\"secret\">永远保守您的秘密</em>", en: "Round-the-clock companionship<span class=\"dot\">·</span>Knows everything about you<span class=\"dot\">·</span>Knows what you like<br /><em class=\"secret\">Your secrets are always safe</em>" },
+        headline: { zh: "值得你托付终身的<em>伙伴</em>", en: "Your Lifelong <em>Private</em> Assistant" },
+        heroSub: { zh: "陪伴<em class=\"hl\">你</em>的日常<span class=\"dot\">·</span>熟悉<em class=\"hl\">你</em>的喜好<span class=\"dot\">·</span>打点<em class=\"hl\">你</em>的一切<br /><em class=\"secret\">永恒守护你的隐私</em>", en: "Round-the-clock companionship<br /><span class=\"dot\">·</span>Knows everything about you<span class=\"dot\">·</span>Knows what you like<br /><em class=\"secret\">Your secrets are always safe</em>" },
         orbitAria: { zh: "EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入", en: "EchoSpark runs on a local device at home, with Android, iOS, Mac, Windows, smart glasses and VR headsets connected around it" },
         chipGlasses: { zh: "智能眼镜 Glasses", en: "Glasses" },
         chipVR: { zh: "VR 头盔 VR Headset", en: "VR Headset" },
-        vision1: { zh: "顺境或逆旅<span class=\"dot\">·</span>富贵或贫穷<span class=\"dot\">·</span>健康或疾病", en: "In good times or bad<span class=\"dot\">·</span>In wealth or in poverty<span class=\"dot\">·</span>In health or in sickness" },
-        vision2: { zh: "伴您同行", en: "Always by Your Side" },
+        vision1: { zh: "<span class=\"ph\">故乡或远方</span><span class=\"dot\">·</span><span class=\"ph\">顺境或逆旅</span><span class=\"dot\">·</span><span class=\"ph\">总角或耄耋</span>", en: "<span class=\"ph\">In good times or bad</span><span class=\"dot\">·</span><span class=\"ph\">In wealth or in poverty</span><span class=\"dot\">·</span><span class=\"ph\">In health or in sickness</span>" },
+        vision2: { zh: "伴你同行", en: "Always by Your Side" },
         aboutTitle: { zh: "关于我们", en: "About Us" },
         col1Title: { zh: "项目介绍", en: "The Project" },
-        teamSub: { zh: "人员组成", en: "The Team" },
-        teamText: { zh: "团队成员来自 <span class=\"en\">Alibaba</span>、<span class=\"en\">Tencent</span>、<span class=\"en\">ByteDance</span> 资深研发。", en: "Senior engineers from <span class=\"en\">Alibaba</span>, <span class=\"en\">Tencent</span>, and <span class=\"en\">ByteDance</span>." },
-        msSub: { zh: "里程碑", en: "Milestones" },
-        tlText: { zh: "MindLeap 诞生", en: "MindLeap Is Born" },
+        teamText: { zh: "MindLeap 诞生于 2026 年 10 月 10 日。团队成员来自 <span class=\"en\">Alibaba</span>、<span class=\"en\">Tencent</span>、<span class=\"en\">ByteDance</span> 资深研发。", en: "MindLeap was founded on October 10, 2026. Its team includes senior engineers from <span class=\"en\">Alibaba</span>, <span class=\"en\">Tencent</span>, and <span class=\"en\">ByteDance</span>." },
         col2Title: { zh: "公司合作", en: "Business Partnerships" },
         col2Text: { zh: "商务合作请发邮件联系，来信请简述合作意向。", en: "For business partnerships, please reach us by email and briefly outline your proposal." },
         kChina: { zh: "中国区邮箱", en: "China Email" },
         kGlobal: { zh: "海外邮箱", en: "Global Email" },
-        col3Title: { zh: "个人沟通", en: "Get in Touch" },
+        col3Title: { zh: "合伙人招募", en: "Get in Touch" },
         geekSub: { zh: "极客交流", en: "Geek Talk" },
         geekText: { zh: "欢迎沟通交流。", en: "Always happy to chat and swap ideas." },
         partnerSub: { zh: "合伙人招募", en: "Partner Recruitment" },
@@ -568,8 +839,8 @@
         labelName: { zh: "姓名", en: "Name" },
         labelEmail: { zh: "邮箱", en: "Email" },
         labelMsg: { zh: "留言", en: "Message" },
-        phName: { zh: "怎么称呼您", en: "What should we call you?" },
-        phMsg: { zh: "说说您的来意", en: "Tell us why you're writing, or how you'd like to join in" },
+        phName: { zh: "怎么称呼你", en: "What should we call you?" },
+        phMsg: { zh: "说说你的来意", en: "Tell us why you're writing, or how you'd like to join in" },
         submitBtn: { zh: "提交留言", en: "Send Message" },
         mailtoBtn: { zh: "改为用邮件发送", en: "Send by email instead" },
         replyNote: { zh: "注：我们收到邮件后会尽快在5个工作日内回复。", en: "Note: we reply within five business days of receiving your message." }
@@ -626,24 +897,51 @@
 
       // ---- Screen 2 orbit: 3D ellipse engine (ported from the orbit demo) ----
       // Devices travel an ellipse (ry/rx = 0.25, 48s per revolution); depth
-      // from sin(θ) drives scale and opacity, icons stay upright. Device
-      // glows breathe at 36/min with a random phase each, the centre halo
-      // at 72/min. Hovering a device freezes the ring, enlarges it and shows
-      // its name; leaving resumes from the frozen angle, no jump.
+      // from sin(θ) drives scale, icons stay upright. Each spoke is an S curve
+      // into the hub carrying a travelling dash of light, tinted by the device's
+      // own --c. Glows breathe at 36/min with a random phase each, the centre
+      // halo pulses on the flow's own beat. Hovering a device freezes the ring,
+      // enlarges it and shows its name; leaving resumes from the frozen angle.
       (function () {
         var stage = document.querySelector(".orbit-stage");
         if (!stage) return;
         var halo = stage.querySelector(".orbit-halo");
+        var svg = stage.querySelector(".orbit-wires");
         var devEls = stage.querySelectorAll("[data-dev]");
         var N = devEls.length;
         var TAU = Math.PI * 2;
         var PERIOD = 48000;
-        var BREATH_MS = 60000 / 36; // device glow period; halo period is half this
+        var BREATH_MS = 60000 / 36; // device glow period, deliberately off the flow beat
+        // must match --flow-dur in CSS: the hub breathes on the flow's own beat
+        var FLOW_MS = 3200;
+        var IMPACT = 0.88; // fraction of the trip where a streak reaches the hub
+        var WIRE_DUR = 2.4; // keep in sync with --wire-dur
+        var SVGNS = "http://www.w3.org/2000/svg";
         var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         var glowPhase = [];
         for (var p = 0; p < N; p++) glowPhase.push(Math.random() * TAU);
         var hoverIdx = -1;
-        var angle = 0, lastT = null;
+        var angle = 0, lastT = null, W = 0, H = 0, hubR = 0;
+
+        // one base line + one travelling dash per device, tinted from its --c
+        var wires = [];
+        for (var w = 0; w < N; w++) {
+          var color = getComputedStyle(devEls[w]).getPropertyValue("--c").trim() || "#6e6e73";
+          var base = document.createElementNS(SVGNS, "path");
+          var core = document.createElementNS(SVGNS, "path");
+          base.setAttribute("class", "wire-base");
+          core.setAttribute("class", "wire-core");
+          base.setAttribute("stroke", color);
+          core.setAttribute("stroke", color);
+          // normalised length: the dash stays proportional however the S stretches
+          base.setAttribute("pathLength", "100");
+          core.setAttribute("pathLength", "100");
+          // one device after another, spread evenly across the beam's own cycle
+          core.style.animationDelay = (w * (WIRE_DUR / N)).toFixed(3) + "s";
+          svg.appendChild(base);
+          svg.appendChild(core);
+          wires.push({ base: base, core: core });
+        }
 
         function setHover(i) {
           if (hoverIdx === i) return;
@@ -673,41 +971,227 @@
           })(h);
         }
 
-        function radii() {
-          var rx = Math.min(296, window.innerWidth * 0.42);
-          if (stage.__rx !== rx) { stage.__rx = rx; stage.style.setProperty("--rx", rx + "px"); }
-          return { rx: rx, ry: rx * 0.25 };
+        // rxNow mirrors the --rx step in CSS: 296 until 1600px, then 388, so the
+        // ring keeps the same weight against the larger type on a desk monitor.
+        function rxNow() {
+          return window.innerWidth >= 1600 ? Math.min(388, window.innerWidth * 0.42) : Math.min(296, window.innerWidth * 0.42);
+        }
+        // hubR is where the spokes stop, so they never run under the centre mark;
+        // stage size is cached here and reused every frame
+        function measure() {
+          W = stage.clientWidth || 0;
+          H = stage.clientHeight || 0;
+          hubR = rxNow() * 0.22;
         }
         function render(t) {
           if (lastT === null) lastT = t;
           var dt = Math.min(t - lastT, 50);
           lastT = t;
           if (hoverIdx < 0 && !reduced) angle += (dt / PERIOD) * TAU;
-          var r = radii();
-          var haloBeat = 0.5 + 0.5 * Math.sin((t / (BREATH_MS / 2)) * TAU);
-          halo.style.opacity = (0.5 + 0.5 * haloBeat).toFixed(3);
+          var rx = rxNow();
+          var ry = rx * 0.25;
+          var cx = W / 2, cy = H / 2;
+          // the hub breathes on the flow's own beat and peaks just as a streak lands,
+          // so the surface looks disturbed by the inflow rather than by a timer.
+          // sine peaks a quarter cycle in, hence the 0.25: peak lands on IMPACT.
+          var haloBeat = 0.5 + 0.5 * Math.sin(((t / FLOW_MS) - (IMPACT - 0.25)) * TAU);
+          halo.style.opacity = (0.55 + 0.4 * haloBeat).toFixed(3);
           for (var i = 0; i < N; i++) {
             var th = (i / N) * TAU - Math.PI / 2 + angle;
-            var x = Math.cos(th) * r.rx;
-            var y = Math.sin(th) * r.ry;
+            var x = Math.cos(th) * rx;
+            var y = Math.sin(th) * ry;
             var depth = (Math.sin(th) + 1) / 2; // 0 = far side, 1 = near side
             var hov = i === hoverIdx;
-            var s = (0.74 + 0.34 * depth) * (hov ? 1.38 : 1);
+            var s = (0.74 + 0.34 * depth) * (hov ? 1.14 : 1);
             var el = devEls[i];
             el.style.transform =
               "translate(-50%, -50%) translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px) scale(" + s.toFixed(3) + ")";
-            el.style.opacity = hov ? "1" : (0.5 + 0.5 * depth).toFixed(3);
-            el.style.zIndex = hov ? "8" : (Math.sin(th) > 0 ? "6" : "2");
+            el.style.zIndex = hov ? "8" : (Math.sin(th) > 0 ? "5" : "4");
+
+            // S curve: the two control points sit on opposite sides of the straight
+            // line, so the spoke bows into the hub instead of shooting straight at it.
+            var dist = Math.sqrt(x * x + y * y) || 1;
+            var ux = x / dist, uy = y / dist;
+            var nx = -uy, ny = ux;   // tangential, so the bend follows the spin
+            var chipR = Math.max(15, rx * 0.0775) * s;
+            var px = x - ux * chipR, py = y - uy * chipR;   // starts at the chip's rim
+            var ex = ux * hubR, ey = uy * hubR;             // ends at the hub's rim
+            var bend = dist * 0.2;
+            var c1x = px + (ex - px) * 0.28 + nx * bend;
+            var c1y = py + (ey - py) * 0.28 + ny * bend;
+            var c2x = px + (ex - px) * 0.72 - nx * bend;
+            var c2y = py + (ey - py) * 0.72 - ny * bend;
+            var d = "M" + (cx + px).toFixed(1) + " " + (cy + py).toFixed(1) +
+                    " C" + (cx + c1x).toFixed(1) + " " + (cy + c1y).toFixed(1) +
+                    " " + (cx + c2x).toFixed(1) + " " + (cy + c2y).toFixed(1) +
+                    " " + (cx + ex).toFixed(1) + " " + (cy + ey).toFixed(1);
+
+            var wire = wires[i];
+            wire.base.setAttribute("d", d);
+            wire.core.setAttribute("d", d);
+            wire.base.style.opacity = hov ? ".5" : ".26";
+            wire.core.style.opacity = hov ? "1" : (0.55 + 0.35 * depth).toFixed(2);
+
             var beat = 0.5 + 0.5 * Math.sin((t / BREATH_MS) * TAU + glowPhase[i]);
             el.querySelector(".dev-glow").style.opacity = (0.2 + 0.6 * beat).toFixed(3);
           }
         }
-        if (reduced) {
-          render(performance.now()); // one static frame: orbit still, glows still, hover names work
-        } else {
+        measure();
+        render(performance.now());
+        window.addEventListener("resize", function () { measure(); render(performance.now()); });
+        if (!reduced) {
           var loop = function (t) { render(t); requestAnimationFrame(loop); };
           requestAnimationFrame(loop);
         }
+      })();
+
+      // The companion greets whoever scrolls to the orbit: reaching the screen fires
+      // one blink immediately, then a cartoon-paced blink every 1.9-4.3s, so the
+      // rhythm never feels mechanical.
+      (function () {
+        var eye = document.querySelector(".ai-flat .eye-r");
+        var spark = document.querySelector(".blink-spark");
+        var orbit = document.getElementById("orbit");
+        if (!eye || !spark || !orbit || !eye.animate || !window.IntersectionObserver) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+        var DUR = 1200;    // one blink, ms — cartoon slow-blink, not a human reflex
+        var GAP = 1900;    // rest after the blink, ms
+        var JITTER = 2400; // extra random rest, ms
+        var timer = null;
+        var live = false;
+
+        // The right eye is a 2x4 bar centred on (15,14). It blinks by pinching its
+        // two long sides together (height -> 0, y follows so the centre stays put),
+        // not by shrinking into a dot: the bar collapses to a hairline, hands over
+        // to the star for a beat, then grows back out.
+        function blink() {
+          eye.animate([
+            { height: "4px", y: "12px", opacity: 1, offset: 0, easing: "linear" },
+            { height: "4px", y: "12px", opacity: 1, offset: .28, easing: "cubic-bezier(.55, 0, .9, .45)" },
+            { height: ".4px", y: "13.8px", opacity: 1, offset: .48, easing: "linear" },
+            { height: ".4px", y: "13.8px", opacity: 0, offset: .54, easing: "linear" },
+            { height: ".4px", y: "13.8px", opacity: 0, offset: .72, easing: "cubic-bezier(.22, .9, .3, 1)" },
+            { height: "4px", y: "12px", opacity: 1, offset: .92, easing: "linear" },
+            { height: "4px", y: "12px", opacity: 1, offset: 1 }
+          ], { duration: DUR, easing: "linear" }).onfinish = schedule;
+
+          spark.animate([
+            { transform: "scale(.15) rotate(-30deg)", opacity: 0, offset: 0, easing: "linear" },
+            { transform: "scale(.15) rotate(-30deg)", opacity: 0, offset: .50, easing: "cubic-bezier(.3,.9,.35,1)" },
+            { transform: "scale(1.15) rotate(0deg)", opacity: 1, offset: .60, easing: "cubic-bezier(.35,.75,.4,1)" },
+            { transform: "scale(.85) rotate(14deg)", opacity: .85, offset: .74, easing: "linear" },
+            { transform: "scale(.2) rotate(30deg)", opacity: 0, offset: .88 },
+            { transform: "scale(.2) rotate(30deg)", opacity: 0, offset: 1 }
+          ], { duration: DUR, easing: "linear" });
+        }
+        function schedule() {
+          if (!live) return;
+          timer = setTimeout(function () { if (live) blink(); }, GAP + Math.random() * JITTER);
+        }
+        function start() {
+          if (live) return;
+          live = true;
+          blink(); // blink the moment the screen is reached
+        }
+        function stop() {
+          live = false;
+          if (timer) { clearTimeout(timer); timer = null; }
+          var list = eye.getAnimations();
+          for (var i = 0; i < list.length; i++) list[i].cancel();
+          var sList = spark.getAnimations();
+          for (var j = 0; j < sList.length; j++) sList[j].cancel();
+          eye.setAttribute("height", "4");
+          eye.setAttribute("y", "12");
+          eye.setAttribute("opacity", "1");
+        }
+
+        new IntersectionObserver(function (entries) {
+          for (var i = 0; i < entries.length; i++) {
+            if (entries[i].isIntersecting) start();
+            else stop();
+          }
+        }, { threshold: 0.55 }).observe(orbit); // greet once the screen is mostly in view
+      })();
+
+      // ---- page state: which screen is the reader on ----
+      // Both the pager and the wheel handler need this answer, and it has to be
+      // robust. IntersectionObserver is not: when the page is embedded (our device
+      // preview iframe is cross-origin and the wrapper applies a CSS zoom), the
+      // intersection is computed against the top-level viewport and scaled by the
+      // parent, so a zero-height -50% root drifts and the dots end up one screen
+      // behind. Plain arithmetic on layout coordinates (offsetTop vs scrollY) has
+      // no such dependency: it asks "which snap point am I nearest to", which is
+      // literally the question a pager answers.
+      var PAGE = (function () {
+        var screens = document.querySelectorAll(".screen");
+        var NAV = 56; // sticky nav height === .screen scroll-margin-top
+        function nearest() {
+          var best = 0, bestDist = Infinity;
+          for (var i = 0; i < screens.length; i++) {
+            var d = Math.abs((screens[i].offsetTop - NAV) - window.scrollY);
+            if (d < bestDist) { bestDist = d; best = i; }
+          }
+          return best;
+        }
+        return { screens: screens, nav: NAV, nearest: nearest };
+      })();
+
+      (function () {
+        var dots = document.querySelectorAll(".pager-dot");
+        if (!dots.length || !PAGE.screens.length) return;
+        var ticking = false;
+        function paint() {
+          ticking = false;
+          var idx = PAGE.nearest();
+          for (var i = 0; i < dots.length; i++) {
+            var on = i === idx;
+            dots[i].classList.toggle("is-active", on);
+            if (on) dots[i].setAttribute("aria-current", "true");
+            else dots[i].removeAttribute("aria-current");
+          }
+        }
+        function schedule() {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(paint);
+        }
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule);
+        paint();
+      })();
+
+      // ---- wheel: one flick flips one screen, like a deck ----
+      // scroll-snap alone is not enough on a mouse: a wheel tick is ~100px, well
+      // under half a screen, so mandatory snapping yanks the page straight back
+      // and nothing appears to happen. Intercepting the wheel and scrolling exactly
+      // one screen keeps the dots and the page in step. Any screen taller than the
+      // viewport (the last one) keeps native scrolling until it is pinned, so its
+      // content is never trapped.
+      (function () {
+        var screens = PAGE.screens;
+        if (!screens.length) return;
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var locked = false;
+        window.addEventListener("wheel", function (e) {
+          if (e.ctrlKey || locked) return;   // ctrl+wheel is browser zoom
+          var dy = e.deltaY;
+          if (Math.abs(dy) < 4) return;      // trackpad jitter
+          var i = PAGE.nearest();
+          var screen = screens[i];
+          var top = screen.offsetTop - PAGE.nav;
+          var taller = screen.offsetHeight > window.innerHeight;
+          var atTop = window.scrollY <= top + 4;
+          var atBottom = window.scrollY + window.innerHeight >= screen.offsetTop + screen.offsetHeight - 4;
+          if (dy > 0 && taller && !atBottom) return;  // still scrolling inside it
+          if (dy < 0 && !atTop) return;               // still scrolling back up inside it
+          var next = dy > 0 ? i + 1 : i - 1;
+          if (next < 0 || next >= screens.length) return;
+          e.preventDefault();
+          locked = true;
+          screens[next].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+          setTimeout(function () { locked = false; }, 640);
+        }, { passive: false });
       })();
 
       var form = document.getElementById("lead-form");
