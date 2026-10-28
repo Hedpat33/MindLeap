@@ -29,10 +29,7 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Archivo:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    />
+
     <style>
       :root {
         --bg: #ffffff;
@@ -66,10 +63,7 @@
       }
       :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
       * { box-sizing: border-box; }
-      html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
-      @media (min-width: 821px) {
-        html { scroll-snap-type: y mandatory; }
-      }
+      html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
       }
@@ -113,9 +107,20 @@
         transition: color .2s ease, border-color .2s ease;
       }
       .nav-btn:hover { color: var(--ink); border-color: var(--faint); }
-      .nav-btn .fa-sun { display: none; }
-      :root[data-theme="dark"] .nav-btn .fa-sun { display: inline-block; }
-      :root[data-theme="dark"] .nav-btn .fa-moon { display: none; }
+      /* Icons come from official Font Awesome SVGs in assets/icons, tinted with mask. */
+      .ico { display: block; background-color: currentColor; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; }
+      .ico-moon { -webkit-mask-image: url("assets/icons/moon.svg"); mask-image: url("assets/icons/moon.svg"); }
+      .ico-sun { -webkit-mask-image: url("assets/icons/sun.svg"); mask-image: url("assets/icons/sun.svg"); }
+      .ico-android { -webkit-mask-image: url("assets/icons/android.svg"); mask-image: url("assets/icons/android.svg"); }
+      .ico-apple { -webkit-mask-image: url("assets/icons/apple.svg"); mask-image: url("assets/icons/apple.svg"); }
+      .ico-laptop { -webkit-mask-image: url("assets/icons/laptop.svg"); mask-image: url("assets/icons/laptop.svg"); }
+      .ico-windows { -webkit-mask-image: url("assets/icons/windows.svg"); mask-image: url("assets/icons/windows.svg"); }
+      .ico-glasses { -webkit-mask-image: url("assets/icons/glasses.svg"); mask-image: url("assets/icons/glasses.svg"); }
+      .ico-vr { -webkit-mask-image: url("assets/icons/vr-cardboard.svg"); mask-image: url("assets/icons/vr-cardboard.svg"); }
+      .nav-btn .ico { width: 15px; height: 15px; }
+      .nav-btn .ico-sun { display: none; }
+      :root[data-theme="dark"] .nav-btn .ico-sun { display: block; }
+      :root[data-theme="dark"] .nav-btn .ico-moon { display: none; }
       #lang-btn { min-width: 44px; letter-spacing: .04em; }
 
       /* ---------- full-screen pages: one screen per wheel page ---------- */
@@ -225,10 +230,11 @@
       .chip {
         position: relative;
         display: inline-flex; align-items: center; justify-content: center;
-        width: calc(var(--rx) * 0.1304); height: calc(var(--rx) * 0.1304); border-radius: 50%;
+        width: max(26px, calc(var(--rx) * 0.1304)); height: max(26px, calc(var(--rx) * 0.1304)); border-radius: 50%;
         background: var(--bg); border: 1px solid var(--line);
-        color: var(--muted); font-size: calc(var(--rx) * 0.0676);
+        color: var(--muted); font-size: max(13px, calc(var(--rx) * 0.0676));
       }
+      .chip .ico { width: 1em; height: 1em; }
       /* names stay hidden until the device is hovered or focused */
       .chip-name {
         position: absolute; left: 50%; top: calc(var(--rx) * 0.1554); transform: translateX(-50%);
@@ -333,6 +339,13 @@
         .c-col + .c-col::before { display: none; }
         /* the join form has no backend yet: hide it on phones */
         #lead-form, .reply-note { display: none; }
+        /* tighten the contact screen so one full page still fits the viewport */
+        .screen-contact { padding-top: var(--s5); padding-bottom: var(--s4); }
+        .screen-contact .sec-head { margin-bottom: var(--s4); }
+        .screen-contact .contact-grid { gap: var(--s4); }
+        .screen-contact .c-col p { margin-bottom: 12px; }
+        .screen-contact .comm-split p { margin-bottom: 12px; }
+        .screen-contact footer { padding: 20px 0 24px; }
       }
       .c-col h3 { font-size: 16px; font-weight: 600; margin: 0 0 16px; letter-spacing: .02em; }
       .c-col p { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
@@ -395,7 +408,7 @@
         <a class="brand en" href="#top">MindLeap</a>
         <div class="nav-controls">
           <button class="nav-btn" id="lang-btn" type="button" aria-label="切换语言 / Switch language">EN</button>
-          <button class="nav-btn" id="theme-btn" type="button" aria-label="切换亮色 / 暗色 · Toggle light / dark"><i class="fa-solid fa-moon" aria-hidden="true"></i><i class="fa-solid fa-sun" aria-hidden="true"></i></button>
+          <button class="nav-btn" id="theme-btn" type="button" aria-label="切换亮色 / 暗色 · Toggle light / dark"><span class="ico ico-moon" aria-hidden="true"></span><span class="ico ico-sun" aria-hidden="true"></span></button>
         </div>
       </div>
     </header>
@@ -422,12 +435,12 @@
       <div class="wrap">
         <div class="orbit-stage" role="img" data-i18n-aria="orbitAria" aria-label="EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入">
           <div class="orbit-halo" aria-hidden="true"></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-android" aria-hidden="true"></i></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-apple" aria-hidden="true"></i></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-laptop" aria-hidden="true"></i></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-brands fa-windows" aria-hidden="true"></i></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-glasses" aria-hidden="true"></i></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipVR" aria-label="VR 头盔 VR Headset"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><i class="fa-solid fa-vr-cardboard" aria-hidden="true"></i></span><span class="chip-name en">VR Headset</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-android" aria-hidden="true"></span></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-apple" aria-hidden="true"></span></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-laptop" aria-hidden="true"></span></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-windows" aria-hidden="true"></span></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-glasses" aria-hidden="true"></span></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev role="img" data-i18n-aria="chipVR" aria-label="VR 头盔 VR Headset"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-vr" aria-hidden="true"></span></span><span class="chip-name en">VR Headset</span><span class="dev-hit"></span></div>
           <div class="orbit-center">
             <div class="char-icon">
               <svg class="ai-flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true"><path d="M4 17 L31 17 Q34 17 34 21 L34 26 Q34 30 38 31 Q42 32 42 37 L42 40 Q42 45 37 45 L30 45 Q27 45 27 42 L27 39 L16 39 L16 42 Q16 45 13 45 L5 45 Q1 45 1 41 L1 26 Q1 21 2 19 Q3 17 4 17 Z" fill="#5F96E8"/><path d="M12.5 24 Q14 27 17 28.5 Q14 30 12.5 33 Q11 30 8 28.5 Q11 27 12.5 24 Z" fill="#2859C5"/><path d="M36.5 0 Q39 8.5 47 11 Q39 13.5 36.5 22 Q34 13.5 26 11 Q34 8.5 36.5 0 Z" fill="#2859C5"/></svg>
@@ -640,11 +653,23 @@
           lastT = null; // resume from the frozen angle, no jump
           if (reduced) render(performance.now());
         }
+        // Touch screens have no hover: tapping a device reveals its name briefly.
+        var canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+        var hoverTimer = null;
         for (var h = 0; h < N; h++) {
           (function (idx) {
             var hit = devEls[idx].querySelector(".dev-hit");
-            hit.addEventListener("pointerenter", function () { setHover(idx); });
-            hit.addEventListener("pointerleave", function () { setHover(-1); });
+            if (canHover) {
+              hit.addEventListener("pointerenter", function () { setHover(idx); });
+              hit.addEventListener("pointerleave", function () { setHover(-1); });
+              return;
+            }
+            hit.addEventListener("click", function () {
+              if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+              if (hoverIdx === idx) { setHover(-1); return; }
+              setHover(idx);
+              hoverTimer = setTimeout(function () { setHover(-1); hoverTimer = null; }, 2400);
+            });
           })(h);
         }
 
