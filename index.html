@@ -331,6 +331,8 @@
       @media (max-width: 820px) {
         .contact-grid { grid-template-columns: 1fr; gap: 32px; }
         .c-col + .c-col::before { display: none; }
+        /* the join form has no backend yet: hide it on phones */
+        #lead-form, .reply-note { display: none; }
       }
       .c-col h3 { font-size: 16px; font-weight: 600; margin: 0 0 16px; letter-spacing: .02em; }
       .c-col p { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
@@ -647,8 +649,8 @@
         }
 
         function radii() {
-          var cs = getComputedStyle(stage);
-          var rx = parseFloat(cs.getPropertyValue("--rx")) || 296;
+          var rx = Math.min(296, window.innerWidth * 0.42);
+          if (stage.__rx !== rx) { stage.__rx = rx; stage.style.setProperty("--rx", rx + "px"); }
           return { rx: rx, ry: rx * 0.25 };
         }
         function render(t) {
