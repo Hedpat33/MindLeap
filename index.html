@@ -216,6 +216,12 @@
          screens, where a single line could not fit anyway. */
       html[lang="en"] .hero-sub { max-width: min(100%, 54em); }
       html[lang="en"] .orbit-vision .v-line1 { font-size: clamp(15px, .7vw + 11px, 30px); letter-spacing: .05em; }
+      /* The Chinese vow under this line is four glyphs and never reaches the
+         38px floor, so the clamp was tuned on it. The English one is 19
+         characters: at 38px it needs ~404px on a 390px phone, which is why it
+         broke as "Always by your / side". Lowering only the floor keeps the
+         desktop sizes untouched and holds it on one line down to ~360px. */
+      html[lang="en"] .orbit-vision .v-line2 { font-size: clamp(28px, 3.8vw + 12px, 104px); }
       html[lang="en"] .contact-line .k { letter-spacing: .12em; }
       h1.headline em { font-style: normal; color: var(--accent); }
       /* lead: one calm paragraph under the headline. The measure is in em, so
