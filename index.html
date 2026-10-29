@@ -239,6 +239,17 @@
         display: inline-block; margin-top: .45em;
         font-style: normal; font-weight: 500; color: var(--accent);
       }
+      /* On a phone the three clauses stack, one per line, and the separators go:
+         the line is too narrow to hold all three, and CJK breaks anywhere, so it
+         used to split inside a clause (打点你的一 / 切) and read as a typo. .hs
+         exists only for this — desktop keeps the inline row with the dots. The
+         <br> before the privacy line is redundant once the clauses are blocks,
+         and on its own it would leave an empty line box above it. */
+      @media (max-width: 480px) {
+        .hero-sub .hs { display: block; }
+        .hero-sub .dot { display: none; }
+        .hero-sub br { display: none; }
+      }
       .btn {
         display: inline-block;
         padding: clamp(10px, .7vw, 14px) clamp(22px, 1.5vw, 30px);
@@ -721,7 +732,7 @@
         </p>
         <h1 class="headline" data-i18n="headline">值得你托付终身的<em>伙伴</em></h1>
         <p class="hero-sub" data-i18n="heroSub">
-          陪伴<em class="hl">你</em>的日常<span class="dot">·</span>熟悉<em class="hl">你</em>的喜好<span class="dot">·</span>打点<em class="hl">你</em>的一切<br />
+          <span class="hs">陪伴<em class="hl">你</em>的日常</span><span class="dot">·</span><span class="hs">熟悉<em class="hl">你</em>的喜好</span><span class="dot">·</span><span class="hs">打点<em class="hl">你</em>的一切</span><br />
           <em class="secret">永远守护你的隐私</em>
         </p>
       </div>
@@ -845,7 +856,7 @@
       var I18N = {
         tagline: { zh: "本地一体化 AI 服务", en: "Local all-in-one AI service" },
         headline: { zh: "值得你托付终身的<em>伙伴</em>", en: "Your lifelong <em>companion</em>" },
-        heroSub: { zh: "陪伴<em class=\"hl\">你</em>的日常<span class=\"dot\">·</span>熟悉<em class=\"hl\">你</em>的喜好<span class=\"dot\">·</span>打点<em class=\"hl\">你</em>的一切<br /><em class=\"secret\">永远守护你的隐私</em>", en: "By <em class=\"hl\">your</em> side through the everyday<span class=\"dot\">·</span>Attuned to <em class=\"hl\">your</em> tastes<span class=\"dot\">·</span>On top of <em class=\"hl\">your</em> world<br /><em class=\"secret\">Your privacy, forever protected</em>" },
+        heroSub: { zh: "<span class=\"hs\">陪伴<em class=\"hl\">你</em>的日常</span><span class=\"dot\">·</span><span class=\"hs\">熟悉<em class=\"hl\">你</em>的喜好</span><span class=\"dot\">·</span><span class=\"hs\">打点<em class=\"hl\">你</em>的一切</span><br /><em class=\"secret\">永远守护你的隐私</em>", en: "<span class=\"hs\">By <em class=\"hl\">your</em> side through the everyday</span><span class=\"dot\">·</span><span class=\"hs\">Attuned to <em class=\"hl\">your</em> tastes</span><span class=\"dot\">·</span><span class=\"hs\">On top of <em class=\"hl\">your</em> world</span><br /><em class=\"secret\">Your privacy, forever protected</em>" },
         orbitAria: { zh: "EchoSpark 运行在家里的本地设备上，Android、iPhone、Mac、Windows、智能眼镜与 VR 头盔环绕接入", en: "EchoSpark runs on a local device at home, with Android, iPhone, Mac, Windows, smart glasses and VR headsets connected around it" },
         chipGlasses: { zh: "智能眼镜 Glasses", en: "Glasses" },
         chipVR: { zh: "VR 头盔 VR Headset", en: "VR Headset" },
