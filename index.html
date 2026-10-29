@@ -623,7 +623,7 @@
       }
       .c-col h3 { font-size: var(--fs-h3); font-weight: 600; margin: 0 0 clamp(14px, 1.4vw, 24px); letter-spacing: .01em; color: var(--ink); }
       .c-col p { color: var(--muted); font-size: var(--fs-body); line-height: var(--lh-body); margin: 0 0 clamp(12px, 1.1vw, 20px); }
-      .c-col p.reply-note { color: var(--faint); font-size: var(--fs-fine); margin: 8px 0 0; }
+      .c-col p.reply-note { color: var(--faint); font-size: var(--fs-fine); margin: 8px 0 clamp(12px, 1.1vw, 20px); }
       .c-col .btn { font-size: var(--fs-sm); padding: clamp(9px, .6vw, 13px) clamp(20px, 1.4vw, 28px); }
       .contact-line { padding: clamp(10px, 1vw, 18px) 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); font-size: var(--fs-body); }
       .contact-line .k { display: block; font-size: var(--fs-eyebrow); letter-spacing: var(--ls-eyebrow); color: var(--faint); margin-bottom: 3px; }
@@ -648,8 +648,15 @@
       textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
       ::placeholder { color: var(--faint); }
       .form-status { font-size: var(--fs-fine); min-height: 22px; margin: 0; }
-      .form-status:empty { min-height: 0; }
-      .form-actions { display: flex; justify-content: flex-end; }
+      /* An empty status paragraph is still a grid item, so its two 16px gaps
+         stayed behind and pushed the note that used to follow the form 32px
+         away from the submit button. Hiding it removes the item entirely. */
+      .form-status:empty { display: none; }
+      /* The row above the submit is separated by the form's 16px gap, but the
+         actions row had nothing below it, so the button sat flush against
+         whatever followed. Padding of the same 16px makes the space above and
+         below the button equal. */
+      .form-actions { display: flex; justify-content: flex-end; padding-bottom: var(--s3); }
       .confirm-dialog {
         border: 1px solid var(--line); border-radius: 16px;
         background: var(--bg); color: var(--ink);
@@ -799,6 +806,7 @@
             <div class="c-col">
               <h3 data-i18n="col3Title">合伙人招募</h3>
               <p data-i18n="partnerText">2/3D UI 设计达人<br />LLM 微调达人</p>
+              <p class="reply-note" data-i18n="replyNote">注：项目尚在起步阶段，短期内无固定薪资，更适合有独立经济基础、希望在0到1阶段深度参与爆款产品的伙伴。<br />公司成立后将匹配相应的初始股权。<br />如果你也相信 EchoSpark 的未来，期待你的加入！</p>
               <form id="lead-form" novalidate>
                 <div>
                   <label for="f-name" data-i18n="labelName">姓名</label>
@@ -827,7 +835,6 @@
                   </div>
                 </form>
               </dialog>
-              <p class="reply-note" data-i18n="replyNote">注：项目尚在起步阶段，短期内无固定薪资，更适合有独立经济基础、希望在0到1阶段深度参与爆款产品的伙伴。<br />公司成立后将匹配相应的初始股权。<br />如果你也相信 EchoSpark 的未来，期待你的加入！</p>
             </div>
           </div>
         </div>
