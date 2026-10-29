@@ -192,8 +192,8 @@
   <body>
     <div class="bar">
       <span class="label">形态</span>
-      <button type="button" data-kind="phone" aria-pressed="true">手机</button>
-      <button type="button" data-kind="pc">桌面</button>
+      <button type="button" data-kind="phone">手机</button>
+      <button type="button" data-kind="pc" aria-pressed="true">桌面</button>
       <span class="divider"></span>
       <span class="label">尺寸</span>
       <span id="sizes" class="bar"></span>
@@ -202,26 +202,26 @@
     <div class="bar">
       <span class="label">缩放</span>
       <button type="button" data-zoom=".4">40%</button>
-      <button type="button" data-zoom=".6">60%</button>
-      <button type="button" data-zoom=".85" aria-pressed="true">85%</button>
+      <button type="button" data-zoom=".6" aria-pressed="true">60%</button>
+      <button type="button" data-zoom=".85">85%</button>
       <button type="button" data-zoom="1">100%</button>
     </div>
 
-    <div class="device" id="device" data-kind="phone">
+    <div class="device" id="device" data-kind="pc">
       <div class="chrome">
         <span class="lights"><i></i><i></i><i></i></span>
         <span class="url">127.0.0.1</span>
       </div>
       <div class="screen" id="screen">
         <div class="notch"></div>
-        <iframe id="frame" src="../index.html" width="390" height="844" title="MindLeap"></iframe>
+        <iframe id="frame" src="../index.html" width="1440" height="900" title="MindLeap"></iframe>
         <div class="home-bar"></div>
       </div>
     </div>
 
     <p class="hint">
       外框里直接滚轮滚动即可翻屏（整屏吸附），右侧三个圆点可点击跳转。<br />
-      切到<strong>桌面</strong>可看大屏排版；内容若是旧的，按 <kbd>Ctrl</kbd> + <kbd>F5</kbd> 强制刷新。
+      切到<strong>手机</strong>可看小屏排版；内容若是旧的，按 <kbd>Ctrl</kbd> + <kbd>F5</kbd> 强制刷新。
     </p>
 
     <script>
@@ -253,7 +253,7 @@
         }
       };
 
-      var mode = "phone";
+      var mode = "pc";
       var current = 0;
 
       function setZoom(z) {
@@ -319,7 +319,7 @@
         });
       }
 
-      applyMode("phone");
+      applyMode("pc");
     </script>
   </body>
 </html>

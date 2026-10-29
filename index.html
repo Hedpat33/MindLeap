@@ -210,6 +210,11 @@
          sits a step below the Chinese one — same optical weight, more lines. */
       html[lang="en"] h1.headline { white-space: normal; font-size: clamp(32px, 4.4vw + 16px, 96px); }
       html[lang="en"] .app-tag { letter-spacing: .14em; }
+      /* The English sub-line is roughly twice as long as the Chinese one, so the
+         30em measure below broke it into two ragged lines. Give it a wide enough
+         measure to hold the three phrases on one line; it still wraps on narrow
+         screens, where a single line could not fit anyway. */
+      html[lang="en"] .hero-sub { max-width: min(100%, 54em); }
       html[lang="en"] .orbit-vision .v-line1 { font-size: clamp(15px, .7vw + 11px, 30px); letter-spacing: .05em; }
       html[lang="en"] .contact-line .k { letter-spacing: .12em; }
       h1.headline em { font-style: normal; color: var(--accent); }
@@ -332,6 +337,11 @@
       .orbit-dev {
         --c: var(--muted);
         position: absolute; left: 50%; top: 50%;
+        /* Flex so the box measures exactly the ball. As a plain block the inline
+           chip adds descender space below itself, the box ends up taller than the
+           ball, and the JS translate(-50%, -50%) then centres that slack instead
+           of the ball — the mark drifts up and the name drifts away from it. */
+        display: flex; align-items: center; justify-content: center;
         will-change: transform, opacity;
         pointer-events: none;
         opacity: var(--idle);
@@ -362,9 +372,13 @@
         box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 12%, transparent);
       }
       .chip .ico { width: 1em; height: 1em; }
-      /* names stay hidden until the device is hovered or focused */
+      /* names stay hidden until the device is hovered or focused.
+         Anchored to the ball's own bottom edge (100%), not to a fraction of
+         --rx: the chip has a 30px floor, so a --rx-derived offset collapsed
+         into — and below 386px viewport went under — the ball. 0.42em is the
+         gap the old formula produced on desktop, kept for the same rhythm. */
       .chip-name {
-        position: absolute; left: 50%; top: calc(var(--rx) * 0.185); transform: translateX(-50%);
+        position: absolute; left: 50%; top: calc(100% + .42em); transform: translateX(-50%);
         font-size: calc(var(--rx) * 0.071); letter-spacing: .05em; color: var(--faint); white-space: nowrap; line-height: 1.2;
         opacity: 0; transition: opacity .25s ease;
         pointer-events: none;
@@ -708,7 +722,7 @@
         <h1 class="headline" data-i18n="headline">值得你托付终身的<em>伙伴</em></h1>
         <p class="hero-sub" data-i18n="heroSub">
           陪伴<em class="hl">你</em>的日常<span class="dot">·</span>熟悉<em class="hl">你</em>的喜好<span class="dot">·</span>打点<em class="hl">你</em>的一切<br />
-          <em class="secret">永恒守护你的隐私</em>
+          <em class="secret">永远守护你的隐私</em>
         </p>
       </div>
       </section>
@@ -716,12 +730,12 @@
       <!-- Screen 2: orbit + vision -->
       <section id="orbit" class="screen screen-orbit">
       <div class="wrap">
-        <div class="orbit-stage" role="img" data-i18n-aria="orbitAria" aria-label="EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入">
+        <div class="orbit-stage" role="img" data-i18n-aria="orbitAria" aria-label="EchoSpark 运行在家里的本地设备上，Android、iPhone、Mac、Windows、智能眼镜与 VR 头盔环绕接入">
           <div class="orbit-halo" aria-hidden="true"></div>
           <div class="orbit-ripples" aria-hidden="true"><span></span><span></span><span></span></div>
           <svg class="orbit-wires" aria-hidden="true"></svg>
           <div class="orbit-dev" data-dev style="--c:#3ddc84" role="img" aria-label="Android"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-android" aria-hidden="true"></span></span><span class="chip-name en">Android</span><span class="dev-hit"></span></div>
-          <div class="orbit-dev" data-dev style="--c:#8e8e93" role="img" aria-label="iOS"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-apple" aria-hidden="true"></span></span><span class="chip-name en">iOS</span><span class="dev-hit"></span></div>
+          <div class="orbit-dev" data-dev style="--c:#8e8e93" role="img" aria-label="iPhone"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-apple" aria-hidden="true"></span></span><span class="chip-name en">iPhone</span><span class="dev-hit"></span></div>
           <div class="orbit-dev" data-dev style="--c:#bf5af2" role="img" aria-label="Mac"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-macbook" aria-hidden="true"></span></span><span class="chip-name en">Mac</span><span class="dev-hit"></span></div>
           <div class="orbit-dev" data-dev style="--c:#0078d4" role="img" aria-label="Windows"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-windows" aria-hidden="true"></span></span><span class="chip-name en">Windows</span><span class="dev-hit"></span></div>
           <div class="orbit-dev" data-dev style="--c:#ffd60a" role="img" data-i18n-aria="chipGlasses" aria-label="智能眼镜 Glasses"><span class="dev-glow" aria-hidden="true"></span><span class="chip"><span class="ico ico-glasses" aria-hidden="true"></span></span><span class="chip-name en">Glasses</span><span class="dev-hit"></span></div>
@@ -831,15 +845,15 @@
       var I18N = {
         tagline: { zh: "本地一体化 AI 服务", en: "Local all-in-one AI service" },
         headline: { zh: "值得你托付终身的<em>伙伴</em>", en: "Your lifelong <em>companion</em>" },
-        heroSub: { zh: "陪伴<em class=\"hl\">你</em>的日常<span class=\"dot\">·</span>熟悉<em class=\"hl\">你</em>的喜好<span class=\"dot\">·</span>打点<em class=\"hl\">你</em>的一切<br /><em class=\"secret\">永恒守护你的隐私</em>", en: "By <em class=\"hl\">your</em> side through the everyday<span class=\"dot\">·</span>Attuned to <em class=\"hl\">your</em> tastes<span class=\"dot\">·</span>On top of <em class=\"hl\">your</em> world<br /><em class=\"secret\">Your privacy, forever protected</em>" },
-        orbitAria: { zh: "EchoSpark 运行在家里的本地设备上，Android、iOS、Mac、Windows、智能眼镜与 VR 头盔环绕接入", en: "EchoSpark runs on a local device at home, with Android, iOS, Mac, Windows, smart glasses and VR headsets connected around it" },
+        heroSub: { zh: "陪伴<em class=\"hl\">你</em>的日常<span class=\"dot\">·</span>熟悉<em class=\"hl\">你</em>的喜好<span class=\"dot\">·</span>打点<em class=\"hl\">你</em>的一切<br /><em class=\"secret\">永远守护你的隐私</em>", en: "By <em class=\"hl\">your</em> side through the everyday<span class=\"dot\">·</span>Attuned to <em class=\"hl\">your</em> tastes<span class=\"dot\">·</span>On top of <em class=\"hl\">your</em> world<br /><em class=\"secret\">Your privacy, forever protected</em>" },
+        orbitAria: { zh: "EchoSpark 运行在家里的本地设备上，Android、iPhone、Mac、Windows、智能眼镜与 VR 头盔环绕接入", en: "EchoSpark runs on a local device at home, with Android, iPhone, Mac, Windows, smart glasses and VR headsets connected around it" },
         chipGlasses: { zh: "智能眼镜 Glasses", en: "Glasses" },
         chipVR: { zh: "VR 头盔 VR Headset", en: "VR Headset" },
         vision1: { zh: "<span class=\"ph\">故乡或远方</span><span class=\"dot\">·</span><span class=\"ph\">顺境或逆旅</span><span class=\"dot\">·</span><span class=\"ph\">总角或耄耋</span>", en: "<span class=\"ph\">Near or far</span><span class=\"dot\">·</span><span class=\"ph\">Through highs and lows</span><span class=\"dot\">·</span><span class=\"ph\">Through every season of life</span>" },
         vision2: { zh: "伴你同行", en: "Always by your side" },
         aboutTitle: { zh: "关于我们", en: "About us" },
         col1Title: { zh: "项目介绍", en: "The project" },
-        teamText: { zh: "MindLeap 诞生于 2026 年 10 月 10 日。团队成员来自 <span class=\"en\">Alibaba</span>、<span class=\"en\">Tencent</span>、<span class=\"en\">ByteDance</span> 资深研发。", en: "MindLeap was founded on October 10, 2026. Built by senior engineers from <span class=\"en\">Alibaba</span>, <span class=\"en\">Tencent</span>, and <span class=\"en\">ByteDance</span>." },
+        teamText: { zh: "MindLeap 诞生于 2026 年 10 月 10 日。团队成员来自 <span class=\"en\">Alibaba</span>、<span class=\"en\">Tencent</span>、<span class=\"en\">ByteDance</span> 资深研发。", en: "MindLeap was founded on October 10, 2026. Built by staff engineers from <span class=\"en\">Alibaba</span>, <span class=\"en\">Tencent</span>, and <span class=\"en\">ByteDance</span>." },
         col2Title: { zh: "公司合作", en: "Business partnerships" },
         col2Text: { zh: "商务合作请发邮件联系，来信请简述合作意向。", en: "For business partnerships, please reach us by email and briefly outline your proposal." },
         kChina: { zh: "中国区邮箱", en: "China email" },
